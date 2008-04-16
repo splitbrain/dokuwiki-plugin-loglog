@@ -26,7 +26,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
             'date'   => '2007-10-19',
             'name'   => 'Login/Logout logging plugin',
             'desc'   => 'Log logins and logouts of users to a file',
-            'url'    => 'http://wiki:splitbrain.org/plugin:loglog',
+            'url'    => 'http://wiki.splitbrain.org/plugin:loglog',
         );
     }
 
