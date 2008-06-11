@@ -45,7 +45,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
         global $conf;
 
         $t   = time();
-        $log = $t."\t".date($conf['dformat'],$t)."\t".$_SERVER['REMOTE_ADDR']."\t".$_SERVER['REMOTE_USER']."\t".$msg;
+        $log = $t."\t".strftime($conf['dformat'],$t)."\t".$_SERVER['REMOTE_ADDR']."\t".$_SERVER['REMOTE_USER']."\t".$msg;
         io_saveFile($conf['cachedir'].'/loglog.log',"$log\n",true);
     }
 
