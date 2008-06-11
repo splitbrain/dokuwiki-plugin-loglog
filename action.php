@@ -23,7 +23,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
         return array(
             'author' => 'Andreas Gohr',
             'email'  => 'andi@splitbrain.org',
-            'date'   => '2007-10-19',
+            'date'   => '2008-06-11',
             'name'   => 'Login/Logout logging plugin',
             'desc'   => 'Log logins and logouts of users to a file',
             'url'    => 'http://wiki.splitbrain.org/plugin:loglog',
