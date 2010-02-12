@@ -10,13 +10,6 @@ require_once(DOKU_PLUGIN.'admin.php');
 class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
 
     /**
-     * return some info
-     */
-    function getInfo(){
-        return confToHash(dirname(__FILE__).'/info.txt');
-    }
-
-    /**
      * Access for managers allowed
      */
     function forAdminOnly(){
