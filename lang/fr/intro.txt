@@ -1,0 +1,3 @@
+====== Journal hebdomadaire des Connexions/Déconnexions Utilisateurs ======
+
+Cette page affiche les connexions et déconnexions de tous les utilisateurs au cours de 7 derniers jours. Vous pouvez utiliser les boutons de navigation au bas de la page pour afficher les semaines précédentes.
