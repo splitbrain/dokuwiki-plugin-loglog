@@ -72,6 +72,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
             }elseif($msg == 'logged in temporarily'){
                 $msg = $this->getLang('tin');
                 $class = 'temp';
+            }elseif($msg == 'failed login attempt'){
+                $msg = $this->getLang('fail');
+                $class = 'fail';
             }else{
                 $msg = '****'.hsc($msg).'****';
                 $class = 'error';
@@ -164,4 +167,3 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         return $lines;
     }
 }
-//Setup VIM: ex: et ts=4 enc=utf-8 :

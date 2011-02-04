@@ -17,6 +17,10 @@ table.loglog span.loglog_temp {
     background: transparent url(pix/temp.png) left center no-repeat;
 }
 
+table.loglog span.loglog_fail {
+    padding-left: 20px;
+    background: transparent url(pix/error.png) left center no-repeat;
+}
 
 
 

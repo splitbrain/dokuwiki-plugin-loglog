@@ -30,8 +30,11 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
     function _log($msg){
         global $conf;
 
+        $user = $_SERVER['REMOTE_USER'];
+        if(!$user) $user = $_REQUEST['u'];
+
         $t   = time();
-        $log = $t."\t".strftime($conf['dformat'],$t)."\t".$_SERVER['REMOTE_ADDR']."\t".$_SERVER['REMOTE_USER']."\t".$msg;
+        $log = $t."\t".strftime($conf['dformat'],$t)."\t".$_SERVER['REMOTE_ADDR']."\t".$user."\t".$msg;
         io_saveFile($conf['cachedir'].'/loglog.log',"$log\n",true);
     }
 
@@ -49,6 +52,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
             }else{
                 $this->_log('logged in temporarily');
             }
+        }elseif($_REQUEST['u'] && !$_SERVER['REMOTE_USER']){
+            $this->_log('failed login attempt');
         }
     }
 

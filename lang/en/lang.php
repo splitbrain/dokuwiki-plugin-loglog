@@ -10,3 +10,5 @@ $lang['range']  = 'Displayed date range:';
 $lang['off'] = 'logged off';
 $lang['in']  = 'logged in permanently';
 $lang['tin'] = 'logged in temporarily';
+$lang['fail'] = 'failed login attempt';
+
