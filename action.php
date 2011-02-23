@@ -52,7 +52,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
             }else{
                 $this->_log('logged in temporarily');
             }
-        }elseif($_REQUEST['u'] && !$_SERVER['REMOTE_USER']){
+        }elseif($_REQUEST['u'] && !$_REQUEST['http_credentials'] && !$_SERVER['REMOTE_USER']){
             $this->_log('failed login attempt');
         }
     }
