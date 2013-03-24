@@ -40,7 +40,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         $min = $go-(7*24*60*60);
         $max = $go;
 
-        echo $this->plugin_locale_xhtml('intro');
+        echo $this->locale_xhtml('intro');
 
         echo '<p>'.$this->getLang('range').' '.strftime($conf['dformat'],$min).
              ' - '.strftime($conf['dformat'],$max).'</p>';
