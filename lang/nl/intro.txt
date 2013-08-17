@@ -1,0 +1,3 @@
+====== Weekoverzicht gebruikers Logins/Logouts ======
+
+Dit scherm geeft alle gebruikers logins en logouts weer van de laatste 7 dagen. Onderaan het scherm kan je vorige weken selecteren om op het scherm te tonen.
