@@ -91,7 +91,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         echo '</table>';
 
         echo '<div class="pagenav">';
-        if($max < time()-(7*24*60*60)){
+        if($max < time()){
         echo '<div class="pagenav-prev">';
         echo html_btn('newer',$ID,"p",array('do'=>'admin','page'=>'loglog','time'=>$max+(7*24*60*60)));
         echo '</div>';
