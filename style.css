@@ -1,5 +1,7 @@
 table.loglog {
     width: 80%;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 table.loglog span.loglog_off {
