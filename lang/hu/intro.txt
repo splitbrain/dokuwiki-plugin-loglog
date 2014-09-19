@@ -1,0 +1,3 @@
+====== Heti felhasználói be-/kijelentkezések ======
+
+A képernyőn az elmúlt 7 napban történt összes felhasználói be- és kijelentkezést láthatjuk. A képernyő alján található navigációs gombokkal a korábbi heteket is megtekinthetjük.
