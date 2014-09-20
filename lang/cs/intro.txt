@@ -1,0 +1,3 @@
+====== Týdenní uživatelská přihlášení/odhlášení ======
+
+Tato obrazovka zobrazuje všechna přihlášení a odhlášení uživatelů z posledních 7 dnů. Pro zobrazení starších týdnů lze použít navigační tlačítka na konci této stránky.
