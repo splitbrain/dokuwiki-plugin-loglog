@@ -1,0 +1,3 @@
+====== Ugentlige Brugerlogin/log ud ======
+
+Denne skærm viser alle brugernes login og log ud fra de sidste 7 dage. Du kan benytte navigationsknapperne i bunden af skærmen til at vise tidligere uger.
