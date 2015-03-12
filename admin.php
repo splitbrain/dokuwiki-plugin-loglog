@@ -75,6 +75,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
             }elseif($msg == 'failed login attempt'){
                 $msg = $this->getLang('fail');
                 $class = 'fail';
+            }elseif($msg == 'has been automatically logged off') {
+                $msg = $this->getLang('autologoff');
+                $class = 'off';
             }else{
                 $msg = '****'.hsc($msg).'****';
                 $class = 'error';

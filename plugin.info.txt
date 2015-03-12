@@ -1,7 +1,7 @@
 base    loglog
 author  Andreas Gohr
 email   andi@splitbrain.org
-date    2014-06-26
+date    2015-03-10
 name    Login/Logout logging plugin
 desc    Log logins and logouts of users to a file
 url     http://www.dokuwiki.org/plugin:loglog

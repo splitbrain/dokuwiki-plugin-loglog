@@ -25,6 +25,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
                                    $this,
                                    'handle_before',
                                    array());
+        $controller->register_hook('ACTION_AUTH_AUTOLOGOUT','BEFORE',$this,'handle_autologout',array());
     }
 
     function _log($msg){
@@ -36,6 +37,14 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
         $t   = time();
         $log = $t."\t".strftime($conf['dformat'],$t)."\t".$_SERVER['REMOTE_ADDR']."\t".$user."\t".$msg;
         io_saveFile($conf['cachedir'].'/loglog.log',"$log\n",true);
+    }
+
+    /**
+     * @param Doku_Event $event
+     * @param mixed      $param   data passed to the event handler
+     */
+    function handle_autologout (&$event, $param){
+        $this->_log('has been automatically logged off');
     }
 
 
