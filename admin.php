@@ -43,7 +43,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         echo $this->locale_xhtml('intro');
 
         echo '<p>'.$this->getLang('range').' '.strftime($conf['dformat'],$min).
-             ' - '.strftime($conf['dformat'],$max).'</p>';
+             ' - '.strftime($conf['dformat'],$max-1).'</p>';
 
 
         echo '<table class="inline loglog">';
