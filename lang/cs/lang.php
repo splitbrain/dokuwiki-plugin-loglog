@@ -11,6 +11,7 @@ $lang['ip']                    = 'IP adresa';
 $lang['action']                = 'Akce';
 $lang['range']                 = 'Zobrazené časové období:';
 $lang['off']                   = 'odhlášení';
+$lang['autologoff']            = 'automaticky odhlášen(a)';
 $lang['in']                    = 'trvalé přihlášení';
 $lang['tin']                   = 'dočasné přihlášení';
 $lang['fail']                  = 'chybné přihlášení';
