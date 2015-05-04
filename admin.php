@@ -79,8 +79,18 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
                 $msg = $this->getLang('autologoff');
                 $class = 'off';
             }else{
-                $msg = '****'.hsc($msg).'****';
-                $class = 'error';
+                $msg = hsc($msg);
+                if(strpos($msg, 'logged off') !== false) {
+                    $class = 'off';
+                } elseif(strpos($msg, 'logged in permanently') !== false) {
+                    $class = 'perm';
+                } elseif(strpos($msg, 'logged in') !== false) {
+                    $class = 'temp';
+                } elseif(strpos($msg, 'failed') !== false) {
+                    $class = 'fail';
+                } else {
+                    $class = 'unknown';
+                }
             }
 
             echo '<tr>';
