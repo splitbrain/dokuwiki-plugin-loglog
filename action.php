@@ -51,9 +51,9 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
     /**
      * catch logouts
      */
-    function handle_before(&$event, $param){
-        $act = $this->_act_clean($event->data);
-        if($act == 'logout'){
+    public function handle_before(Doku_Event $event, $param) {
+        $act = act_clean($event->data);
+        if($act == 'logout') {
             $this->_log('logged off');
         }elseif($_SERVER['REMOTE_USER'] && $act=='login'){
             if($_REQUEST['r']){
@@ -65,26 +65,5 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
             $this->_log('failed login attempt');
         }
     }
-
-
-
-    /**
-     * Pre-Sanitize the action command
-     *
-     * Similar to act_clean in action.php but simplified and without
-     * error messages
-     */
-    function _act_clean($act){
-         // check if the action was given as array key
-         if(is_array($act)){
-           list($act) = array_keys($act);
-         }
-
-         //remove all bad chars
-         $act = strtolower($act);
-         $act = preg_replace('/[^a-z_]+/','',$act);
-
-         return $act;
-     }
 }
 
