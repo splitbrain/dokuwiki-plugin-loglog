@@ -33,17 +33,17 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
      * output appropriate html
      */
     function html() {
-        global $conf;
-        global $lang;
-        $go  = (int) $_REQUEST['time'];
-        if(!$go) $go = time()+60*60; //one hour in the future to trick pagination
-        $min = $go-(7*24*60*60);
-        $max = $go;
+        global $conf, $lang, $INPUT;
+
+        $go  = $INPUT->int('time');
+        if(!$go) $go = strtotime('monday this week');
+        $min = $go;
+        $max = strtotime('+1 week',$min);
 
         echo $this->locale_xhtml('intro');
 
         echo '<p>'.$this->getLang('range').' '.strftime($conf['dformat'],$min).
-             ' - '.strftime($conf['dformat'],$max).'</p>';
+             ' - '.strftime($conf['dformat'],$max-1).'</p>';
 
 
         echo '<table class="inline loglog">';
@@ -104,14 +104,14 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         echo '</table>';
 
         echo '<div class="pagenav">';
-        if($max < time()-(7*24*60*60)){
+        if ($max < time()){
         echo '<div class="pagenav-prev">';
-        echo html_btn('newer',$ID,"p",array('do'=>'admin','page'=>'loglog','time'=>$max+(7*24*60*60)));
+        echo html_btn('newer',$ID,"p",array('do'=>'admin','page'=>'loglog','time'=>$max));
         echo '</div>';
         }
 
         echo '<div class="pagenav-next">';
-        echo html_btn('older',$ID,"n",array('do'=>'admin','page'=>'loglog','time'=>$min));
+        echo html_btn('older',$ID,"n",array('do'=>'admin','page'=>'loglog','time'=>strtotime('-1 week',$min)));
         echo '</div>';
         echo '</div>';
 
@@ -168,7 +168,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
             // get date of first line:
             list($cdate) = explode("\t",$cparts[0]);
 
-            if($cdate > $max) continue; // haven't reached wanted area, yet
+            if($cdate >= $max) continue; // haven't reached wanted area, yet
 
             // put the new lines on the stack
             $lines = array_merge($cparts,$lines);
