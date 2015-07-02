@@ -33,9 +33,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
      * output appropriate html
      */
     function html() {
-        global $conf;
-        global $lang;
-        $go  = (int) $_REQUEST['time'];
+        global $conf, $lang, $INPUT;
+
+        $go  = $INPUT->int('time');
         if(!$go) $go = strtotime('monday this week');
         $min = $go;
         $max = strtotime('+1 week',$min);
