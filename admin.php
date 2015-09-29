@@ -33,9 +33,8 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
      * output appropriate html
      */
     function html() {
-        global $conf;
-        global $lang;
-        $go  = (int) $_REQUEST['time'];
+        global $ID, $conf, $lang;
+        $go  = isset($_REQUEST['time']) ? intval($_REQUEST['time']) : 0;
         if(!$go) $go = time()+60*60; //one hour in the future to trick pagination
         $min = $go-(7*24*60*60);
         $max = $go;
@@ -58,6 +57,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         $lines = array_reverse($lines);
 
         foreach($lines as $line){
+            if (empty($line)) continue; // Filter empty lines
             list($dt,$junk,$ip,$user,$msg) = explode("\t",$line,5);
             if($dt < $min) continue;
             if($dt > $max) continue;
