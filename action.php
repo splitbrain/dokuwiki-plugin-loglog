@@ -107,13 +107,13 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
         $act = act_clean($event->data);
         if($act == 'logout') {
             $this->_log('logged off');
-        } elseif($_SERVER['REMOTE_USER'] && $act == 'login') {
-            if($_REQUEST['r']) {
+        } elseif(!empty($_SERVER['REMOTE_USER']) && $act == 'login') {
+            if(isset($_REQUEST['r'])) {
                 $this->_log('logged in permanently');
             } else {
                 $this->_log('logged in temporarily');
             }
-        } elseif($_REQUEST['u'] && !$_REQUEST['http_credentials'] && !$_SERVER['REMOTE_USER']) {
+        } elseif($_REQUEST['u'] && $_REQUEST['http_credentials'] && empty($_SERVER['REMOTE_USER'])) {
             $this->_log('failed login attempt');
         }
     }
