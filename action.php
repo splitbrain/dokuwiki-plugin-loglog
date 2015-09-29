@@ -19,7 +19,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
     /**
      * register the eventhandlers
      */
-    function register(&$controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook(
             'ACTION_ACT_PREPROCESS',
             'BEFORE',
