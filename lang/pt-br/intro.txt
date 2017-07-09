@@ -1,0 +1,3 @@
+====== Relatório Semanal de Entradas e Saídas de Usuários ======
+
+Esta tela mostra todas as entradas e saídas de usuários durante os últimos 7 dias. Você pode usar os botões de navegação no final da tela para mostrar semanas mais antigas.
