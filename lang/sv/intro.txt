@@ -1,0 +1,3 @@
+====== Veckovis användarinloggningar/-utloggningar ======
+
+Här visas alla användarinloggningar och -utloggningar de senaste sju dagarna. Du kan använda knapparna längst ner på sidan för att visa tidigare veckor.
