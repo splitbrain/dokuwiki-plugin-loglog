@@ -1,0 +1,2 @@
+====== Connexions/Desconnexions dels utilizaires per setmana ======
+Aqueste ecran fa veire totes los utilizaires que se son connectat o desconnexion pendent los darrièrs 7 jorns. Utilizatz lo boton de navigacion aval de l'ecran per mostrar las setmanas mai anterioras.
