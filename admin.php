@@ -34,8 +34,8 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
      */
     function html() {
         global $ID, $conf, $lang;
-        $go  = isset($_REQUEST['time']) ? intval($_REQUEST['time']) : 0;
-        if(!$go) $go = time()+60*60; //one hour in the future to trick pagination
+        $now = time();
+        $go  = isset($_REQUEST['time']) ? intval($_REQUEST['time']) : $now;
         $min = $go-(7*24*60*60);
         $max = $go;
 
@@ -104,10 +104,15 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin {
         echo '</table>';
 
         echo '<div class="pagenav">';
-        if($max < time()-(7*24*60*60)){
-        echo '<div class="pagenav-prev">';
-        echo html_btn('newer',$ID,"p",array('do'=>'admin','page'=>'loglog','time'=>$max+(7*24*60*60)));
-        echo '</div>';
+        if($now - $go > 60*60*5){
+            $next = $max+(7*24*60*60);
+            if($now - $next  < 60*60*5) {
+                $next = $now;
+            }
+
+            echo '<div class="pagenav-prev">';
+            echo html_btn('newer',$ID,"p",array('do'=>'admin','page'=>'loglog','time'=>$next));
+            echo '</div>';
         }
 
         echo '<div class="pagenav-next">';
