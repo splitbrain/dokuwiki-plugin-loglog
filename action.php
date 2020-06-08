@@ -62,7 +62,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin {
         if(!$user) return;
 
         $t   = time();
-        $log = $t . "\t" . strftime($conf['dformat'], $t) . "\t" . $_SERVER['REMOTE_ADDR'] . "\t" . $user . "\t" . $msg;
+        $ip = clientIP(true);
+        $log = $t . "\t" . strftime($conf['dformat'], $t) . "\t" . $ip . "\t" . $user . "\t" . $msg;
         io_saveFile($conf['cachedir'] . '/loglog.log', "$log\n", true);
     }
 
