@@ -71,38 +71,40 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'handleAjax'
         );
 
-        // log other admin actions: config
+        // log other admin actions
         $controller->register_hook(
             'DOKUWIKI_STARTED',
             'AFTER',
             $this,
-            'handleConfig'
+            'handleOther'
         );
     }
 
     /**
-     * Log an action
+     * Log login/logoff actions
      *
      * @param $msg
      * @param null|string $user
      */
     protected function logAccess($msg, $user = null)
     {
-        $this->helper->writeLine([$msg], $user);
+        // deduce filter bucket from msg
+        $filter = $this->helper->getFilterFromMsg($msg);
+        $this->helper->writeLine($msg, $user);
     }
 
     /**
-     * Log access to admin tools
+     * Log usage of admin tools
      *
      * @param array $data
      */
-    protected function logAdmin($data)
+    protected function logAdmin(array $data)
     {
-        // FIXME AJAX etc.
         global $INPUT;
+        $msg = 'admin';
         $page = $INPUT->str('page');
         array_unshift($data, $page);
-        $this->helper->writeLine($data);
+        $this->helper->writeLine($msg,null, $data);
     }
 
     /**
@@ -205,7 +207,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     /**
      * @param \Doku_Event $event
      */
-    public function handleConfig(\Doku_Event $event)
+    public function handleOther(\Doku_Event $event)
     {
         global $INPUT;
 

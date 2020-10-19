@@ -2,21 +2,39 @@
 
 class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 {
+    /**
+     * @var helper_plugin_loglog
+     */
+    protected $helper;
+
+    /**
+     * @var string
+     */
+    protected $filter = '';
 
     /** @inheritDoc */
-    function forAdminOnly()
+    public function forAdminOnly()
     {
         return false;
     }
 
     /** @inheritDoc */
-    function getMenuSort()
+    public function getMenuSort()
     {
         return 141;
     }
 
+    public function __construct()
+    {
+        $this->helper = $this->loadHelper('loglog');
+
+        global $INPUT;
+        $this->filter = $INPUT->str('filter');
+    }
+
+
     /** @inheritDoc */
-    function html()
+    public function html()
     {
         global $ID, $conf, $lang;
         $now = time();
@@ -25,6 +43,14 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         $max = $go;
 
         echo $this->locale_xhtml('intro');
+
+        $form = new dokuwiki\Form\Form(['method'=>'GET']);
+        $form->setHiddenField('do', 'admin');
+        $form->setHiddenField('page', 'loglog');
+        $form->addDropdown('filter', ['auth_ok', 'admin', 'other']);
+        $form->addButton('submit','>')->attr('type','submit');
+        echo $form->toHTML();
+
 
         echo '<p>' . $this->getLang('range') . ' ' . strftime($conf['dformat'], $min) .
             ' - ' . strftime($conf['dformat'], $max) . '</p>';
@@ -35,6 +61,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '<th>' . $this->getLang('ip') . '</th>';
         echo '<th>' . $lang['user'] . '</th>';
         echo '<th>' . $this->getLang('action') . '</th>';
+        echo '<th>DATA</th>';
         echo '</tr>';
 
         $lines = $this->readLines($min, $max);
@@ -42,10 +69,17 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 
         foreach ($lines as $line) {
             if (empty($line)) continue; // Filter empty lines
-            list($dt, $junk, $ip, $user, $msg) = explode("\t", $line, 5);
+
+            list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
             if ($dt < $min) continue;
             if ($dt > $max) continue;
             if (!$user) continue;
+
+            $lineFilter = $this->helper->getFilterFromMsg($msg);
+
+            if ($this->filter && $this->filter!== $lineFilter) {
+                continue;
+            }
 
             if ($msg == 'logged off') {
                 $msg = $this->getLang('off');
@@ -82,6 +116,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo '<td>' . hsc($ip) . '</td>';
             echo '<td>' . hsc($user) . '</td>';
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
+            echo '<td>' . hsc($data) . '</td>';
             echo '</tr>';
         }
 
@@ -113,7 +148,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
      * @param int $max end time (in seconds)
      * @return array
      */
-    function readLines($min, $max)
+    public function readLines($min, $max)
     {
         global $conf;
         $file = $conf['cachedir'] . '/loglog.log';
