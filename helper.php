@@ -28,6 +28,9 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
     }
 
     /**
+     * Deduce filter from message field. Filters are used in a dropdown in admin listing of activities,
+     * as well as when generating reports to send per email.
+     *
      * @param $msg
      * @return string
      */
@@ -56,5 +59,17 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
         }
 
         return $filter;
+    }
+
+    /**
+     * Check if any configured thresholds have been exceeded and trigger
+     * alert notifications accordingly.
+     *
+     * @return bool
+     */
+    public function checkAlertThresholds()
+    {
+        // TODO implement
+        return true;
     }
 }

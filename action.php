@@ -21,11 +21,12 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     /** @inheritDoc */
     function register(Doku_Event_Handler $controller)
     {
+        // tasks to perform on login/logoff
         $controller->register_hook(
             'ACTION_ACT_PREPROCESS',
             'BEFORE',
             $this,
-            'handle_before',
+            'handleAuth',
             array()
         );
 
@@ -63,7 +64,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'handleUsermod'
         );
 
-        // log other admin actions: acl
+        // log admin actions triggered via Ajax
         $controller->register_hook(
             'AJAX_CALL_UNKNOWN',
             'AFTER',
@@ -141,13 +142,14 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     }
 
     /**
-     * catch standard logins/logouts
+     * catch standard logins/logouts, check if any alert notifications should be sent
      *
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_before(Doku_Event $event, $param)
+    public function handleAuth(Doku_Event $event, $param)
     {
+        // log authentication events
         $act = act_clean($event->data);
         if ($act == 'logout') {
             $this->logAccess('logged off');
@@ -160,6 +162,9 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         } elseif ($_REQUEST['u'] && empty($_REQUEST['http_credentials']) && empty($_SERVER['REMOTE_USER'])) {
             $this->logAccess('failed login attempt');
         }
+
+        // trigger alert notifications if necessary
+        $this->helper->checkAlertThresholds();
     }
 
     /**
