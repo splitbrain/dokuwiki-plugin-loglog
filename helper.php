@@ -27,6 +27,10 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
         io_saveFile($conf['cachedir'] . '/loglog.log', "$line\n", true);
     }
 
+    /**
+     * @param $msg
+     * @return string
+     */
     public function getFilterFromMsg($msg)
     {
         $filter = 'other';

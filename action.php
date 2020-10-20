@@ -253,9 +253,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
                 ];
             }
 
-            $this->logAdmin([
-                $cmd, serialize($rule)
-            ]);
+            $this->logAdmin([$cmd, $rule]);
         }
     }
 }

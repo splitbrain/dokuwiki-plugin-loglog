@@ -47,8 +47,17 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         $form = new dokuwiki\Form\Form(['method'=>'GET']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'loglog');
-        $form->addDropdown('filter', ['auth_ok', 'admin', 'other']);
-        $form->addButton('submit','>')->attr('type','submit');
+        $form->addDropdown(
+            'filter',
+            [
+                'all' => $this->getLang('filter_all'),
+                'auth_ok' => $this->getLang('filter_auth_ok'),
+                'auth_error' => $this->getLang('filter_auth_error'),
+                'admin' => $this->getLang('filter_admin'),
+                'other' => $this->getLang('filter_other')
+            ]
+        );
+        $form->addButton('submit', $this->getLang('submit'))->attr('type','submit');
         echo $form->toHTML();
 
 
@@ -61,7 +70,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '<th>' . $this->getLang('ip') . '</th>';
         echo '<th>' . $lang['user'] . '</th>';
         echo '<th>' . $this->getLang('action') . '</th>';
-        echo '<th>DATA</th>';
+        echo '<th>'. $this->getLang('data') . '</th>';
         echo '</tr>';
 
         $lines = $this->readLines($min, $max);
@@ -77,7 +86,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 
             $lineFilter = $this->helper->getFilterFromMsg($msg);
 
-            if ($this->filter && $this->filter!== $lineFilter) {
+            if ($this->filter && $this->filter !== 'all' && $this->filter!== $lineFilter) {
                 continue;
             }
 
@@ -116,7 +125,11 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo '<td>' . hsc($ip) . '</td>';
             echo '<td>' . hsc($user) . '</td>';
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
-            echo '<td>' . hsc($data) . '</td>';
+            echo '<td>';
+            if ($data) {
+                echo '<pre>' . json_encode(unserialize($data), JSON_PRETTY_PRINT) . '</pre>';
+            }
+            echo '</td>';
             echo '</tr>';
         }
 
