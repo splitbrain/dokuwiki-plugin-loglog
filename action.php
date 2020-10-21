@@ -26,8 +26,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'ACTION_ACT_PREPROCESS',
             'BEFORE',
             $this,
-            'handleAuth',
-            array()
+            'handleAuth'
         );
 
         // allow other plugins to emit logging events
@@ -35,8 +34,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'PLUGIN_LOGLOG_LOG',
             'BEFORE',
             $this,
-            'handle_custom',
-            array()
+            'handleCustom'
         );
 
         // autologout plugin
@@ -44,8 +42,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'ACTION_AUTH_AUTOLOGOUT',
             'BEFORE',
             $this,
-            'handle_autologout',
-            array()
+            'handleAutologout'
         );
 
         // log admin access
@@ -87,10 +84,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * @param $msg
      * @param null|string $user
      */
-    protected function logAccess($msg, $user = null)
+    protected function logAuth($msg, $user = null)
     {
-        // deduce filter bucket from msg
-        $filter = $this->helper->getFilterFromMsg($msg);
         $this->helper->writeLine($msg, $user);
     }
 
@@ -98,13 +93,15 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * Log usage of admin tools
      *
      * @param array $data
+     * @param string $more
      */
-    protected function logAdmin(array $data)
+    protected function logAdmin(array $data = [], $more = '')
     {
         global $INPUT;
         $msg = 'admin';
         $page = $INPUT->str('page');
-        array_unshift($data, $page);
+        if ($page) $msg .= " - $page";
+        if ($more && $more !== $page) $msg .= " - $more";
         $this->helper->writeLine($msg,null, $data);
     }
 
@@ -114,7 +111,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_custom(Doku_Event $event, $param)
+    public function handleCustom(Doku_Event $event, $param)
     {
         if (isset($event->data['message'])) {
             $log = $event->data['message'];
@@ -127,7 +124,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             $user = null;
         }
 
-        $this->logAccess($log, $user);
+        $this->logAuth($log, $user);
     }
 
     /**
@@ -136,9 +133,9 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_autologout(Doku_Event $event, $param)
+    public function handleAutologout(Doku_Event $event, $param)
     {
-        $this->logAccess('has been automatically logged off');
+        $this->logAuth('has been automatically logged off');
     }
 
     /**
@@ -152,15 +149,15 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         // log authentication events
         $act = act_clean($event->data);
         if ($act == 'logout') {
-            $this->logAccess('logged off');
+            $this->logAuth('logged off');
         } elseif (!empty($_SERVER['REMOTE_USER']) && $act == 'login') {
             if (isset($_REQUEST['r'])) {
-                $this->logAccess('logged in permanently');
+                $this->logAuth('logged in permanently');
             } else {
-                $this->logAccess('logged in temporarily');
+                $this->logAuth('logged in temporarily');
             }
         } elseif ($_REQUEST['u'] && empty($_REQUEST['http_credentials']) && empty($_SERVER['REMOTE_USER'])) {
-            $this->logAccess('failed login attempt');
+            $this->logAuth('failed login attempt');
         }
 
         // trigger alert notifications if necessary
@@ -176,7 +173,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     {
         global $ACT;
         if ($ACT === 'admin') {
-            $this->logAdmin(['access']);
+            $this->logAdmin();
         }
     }
 
@@ -205,7 +202,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
 
         // extension manager
         if ($event->data === 'plugin_extension') {
-            $this->logAdmin([$INPUT->str('act') . ' ' . $INPUT->str('ext')]);
+            $this->logAdmin([$INPUT->str('act') . ' ' . $INPUT->str('ext')], 'extension');
         }
     }
 
@@ -221,7 +218,6 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             && $INPUT->bool('save') === true
             && !empty($INPUT->arr('config'))
         ) {
-            // TODO can we get a diff?
             $this->logAdmin(['save config']);
         }
 
