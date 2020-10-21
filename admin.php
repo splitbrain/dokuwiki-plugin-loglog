@@ -36,17 +36,29 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
     /** @inheritDoc */
     public function html()
     {
-        global $ID, $conf, $lang;
+        global $ID, $INPUT, $conf, $lang;
         $now = time();
         $go = isset($_REQUEST['time']) ? intval($_REQUEST['time']) : $now;
         $min = $go - (7 * 24 * 60 * 60);
         $max = $go;
+
+        $past = $now - $go > 60 * 60 * 5;
+        if ($past) {
+            $next = $max + (7 * 24 * 60 * 60);
+            if ($now - $next < 60 * 60 * 5) {
+                $next = $now;
+            }
+        }
+
+        $filter = $INPUT->str('filter') ?: 'all';
+        $time = $INPUT->str('time') ?: $now;
 
         echo $this->locale_xhtml('intro');
 
         $form = new dokuwiki\Form\Form(['method'=>'GET']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'loglog');
+        $form->setHiddenField('time', $time);
         $form->addDropdown(
             'filter',
             [
@@ -136,19 +148,22 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '</table>';
 
         echo '<div class="pagenav">';
-        if ($now - $go > 60 * 60 * 5) {
-            $next = $max + (7 * 24 * 60 * 60);
-            if ($now - $next < 60 * 60 * 5) {
-                $next = $now;
-            }
-
+        if ($past) {
             echo '<div class="pagenav-prev">';
-            echo html_btn('newer', $ID, "p", array('do' => 'admin', 'page' => 'loglog', 'time' => $next));
+            echo html_btn('newer',
+                $ID,
+                "p",
+                ['do' => 'admin', 'page' => 'loglog', 'time' => $next, 'filter' => $filter]
+            );
             echo '</div>';
         }
 
         echo '<div class="pagenav-next">';
-        echo html_btn('older', $ID, "n", array('do' => 'admin', 'page' => 'loglog', 'time' => $min));
+        echo html_btn('older',
+            $ID,
+            "n",
+            ['do' => 'admin', 'page' => 'loglog', 'time' => $min, 'filter' => $filter]
+        );
         echo '</div>';
         echo '</div>';
 
