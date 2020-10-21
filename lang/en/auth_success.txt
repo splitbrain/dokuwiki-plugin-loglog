@@ -1,0 +1,5 @@
+Attention!
+
+The number of recent logins has exceeded the configured limit!
+
+You may want to contact the administrator to investigate the issue.

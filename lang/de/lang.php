@@ -19,3 +19,6 @@ $lang['filter_auth_ok'] = 'An- und Abmeldungen';
 $lang['filter_auth_error'] = 'Fehlgeschlagene Anmeldeversuche';
 $lang['filter_admin'] = 'Admin';
 $lang['filter_other'] = 'Andere';
+
+$lang['email_max_success_logins_subject'] = 'Warnung: Zu viele Anmeldungen auf';
+$lang['email_max_failed_logins_subject'] = 'Warnung: Zu viele fehlgeschlagene Anmeldeveruche auf';

@@ -85,7 +85,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '<th>'. $this->getLang('data') . '</th>';
         echo '</tr>';
 
-        $lines = $this->readLines($min, $max);
+        $lines = $this->helper->readLines($min, $max);
         $lines = array_reverse($lines);
 
         foreach ($lines as $line) {
@@ -167,70 +167,5 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '</div>';
         echo '</div>';
 
-    }
-
-    /**
-     * Read loglines backward
-     *
-     * @param int $min start time (in seconds)
-     * @param int $max end time (in seconds)
-     * @return array
-     */
-    public function readLines($min, $max)
-    {
-        global $conf;
-        $file = $conf['cachedir'] . '/loglog.log';
-
-        $data = array();
-        $lines = array();
-        $chunk_size = 8192;
-
-        if (!@file_exists($file)) return $data;
-        $fp = fopen($file, 'rb');
-        if ($fp === false) return $data;
-
-        //seek to end
-        fseek($fp, 0, SEEK_END);
-        $pos = ftell($fp);
-        $chunk = '';
-
-        while ($pos) {
-
-            // how much to read? Set pointer
-            if ($pos > $chunk_size) {
-                $pos -= $chunk_size;
-                $read = $chunk_size;
-            } else {
-                $read = $pos;
-                $pos = 0;
-            }
-            fseek($fp, $pos);
-
-            $tmp = fread($fp, $read);
-            if ($tmp === false) break;
-            $chunk = $tmp . $chunk;
-
-            // now split the chunk
-            $cparts = explode("\n", $chunk);
-
-            // keep the first part in chunk (may be incomplete)
-            if ($pos) $chunk = array_shift($cparts);
-
-            // no more parts available, read on
-            if (!count($cparts)) continue;
-
-            // get date of first line:
-            list($cdate) = explode("\t", $cparts[0]);
-
-            if ($cdate > $max) continue; // haven't reached wanted area, yet
-
-            // put the new lines on the stack
-            $lines = array_merge($cparts, $lines);
-
-            if ($cdate < $min) break; // we have enough
-        }
-        fclose($fp);
-
-        return $lines;
     }
 }

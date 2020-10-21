@@ -87,6 +87,9 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     protected function logAuth($msg, $user = null)
     {
         $this->helper->writeLine($msg, $user);
+
+        // trigger alert notifications if necessary
+        $this->helper->checkAlertThresholds();
     }
 
     /**
@@ -159,9 +162,6 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         } elseif ($_REQUEST['u'] && empty($_REQUEST['http_credentials']) && empty($_SERVER['REMOTE_USER'])) {
             $this->logAuth('failed login attempt');
         }
-
-        // trigger alert notifications if necessary
-        $this->helper->checkAlertThresholds();
     }
 
     /**
