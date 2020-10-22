@@ -2,12 +2,12 @@ Aktivitäten im vergangenen Monat
 
 Logins
 
-  - Anzahl der erfolgreichen Logins: %%auth_ok%%
-  - Anzahl der fehlgeschlagenen Loginversuche: %%auth_fail%%
-  - Anzahl der Nutzer, die sich eingeloggt haben: %%users%%
+  * Anzahl der erfolgreichen Logins: ??auth_ok??
+  * Anzahl der fehlgeschlagenen Loginversuche: ??auth_fail??
+  * Anzahl der Nutzer, die sich eingeloggt haben: ??users??
 
 Admin Tools
 
 Aufrufe der verschiedenen Admin-Plugins
 
-%%admin_pages%%
+??admin_pages??

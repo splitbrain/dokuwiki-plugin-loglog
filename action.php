@@ -293,12 +293,21 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         // email the report
         $text = $this->locale_xhtml('report');
         // format access to admin pages
-        $syntax = '  - ' . implode("\n  - ", $stats['admin']);
+        $syntax = implode(
+            "\n",
+            array_map(
+                function ($page, $cnt) {
+                    return "  - $page: $cnt";
+                },
+                array_keys($stats['admin']),
+                $stats['admin']
+            )
+        );
         $adminPagesHtml = p_render('xhtml', p_get_instructions($syntax), $info);
 
         $text = str_replace(
-            ['%%auth_ok%%', '%%auth_fail%%', '%%users%%', '%%admin_pages%%'],
-            [$stats['auth_ok'], $stats['auth_fail'], $stats['auth_ok'], $adminPagesHtml],
+            ['??auth_ok??', '??auth_fail??', '??users??', '??admin_pages??'],
+            [$stats['auth_success'], $stats['auth_failed'], $stats['auth_users'], $adminPagesHtml],
             $text
         );
 
@@ -310,7 +319,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             )
         ) {
             // log itself
-            $this->helper->writeLine('loglog - report');
+            $this->helper->writeLine('loglog - report', 'cron');
             // touch statfile
             touch($statfile);
         }
