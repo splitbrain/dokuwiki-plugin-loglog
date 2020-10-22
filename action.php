@@ -76,6 +76,14 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             $this,
             'handleOther'
         );
+
+        // log other admin actions
+        $controller->register_hook(
+            'DOKUWIKI_DONE',
+            'AFTER',
+            $this,
+            'handleReport'
+        );
     }
 
     /**
@@ -127,7 +135,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             $user = null;
         }
 
-        $this->logAuth($log, $user);
+        $this->helper->writeLine($log, $user);
     }
 
     /**
@@ -234,7 +242,6 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
                 $this->logAdmin(['installurl', $INPUT->post->str('installurl')]);
             } elseif (isset($_FILES['installfile'])) {
                 $this->logAdmin(['installfile', $_FILES['installfile']['name']]);
-
             }
         }
 
@@ -255,6 +262,57 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             }
 
             $this->logAdmin([$cmd, $rule]);
+        }
+    }
+
+    /**
+     * Handle monthly usage reports
+     *
+     * @param Doku_Event $event
+     */
+    public function handleReport(Doku_Event $event)
+    {
+        $email = $this->getConf('report_email');
+        if (!$email) return;
+
+        // calculate cutoff dates
+        $lastMonthStart = mktime(0, 0, 0, date('n', strtotime('last month')), 1);
+        $currentMonthStart = mktime(0, 0, 0, date('n'), 1);
+
+        // check if the report is due
+        global $conf;
+        $statfile = $conf['cachedir'] . '/loglog.stat';
+        if (is_file($statfile) && filemtime($statfile) >= $currentMonthStart) {
+            return;
+        }
+
+        // calculate stat
+        $monthLines = $this->helper->readLines($lastMonthStart, $currentMonthStart);
+        $stats = $this->helper->getStats($monthLines);
+
+        // email the report
+        $text = $this->locale_xhtml('report');
+        // format access to admin pages
+        $syntax = '  - ' . implode("\n  - ", $stats['admin']);
+        $adminPagesHtml = p_render('xhtml', p_get_instructions($syntax), $info);
+
+        $text = str_replace(
+            ['%%auth_ok%%', '%%auth_fail%%', '%%users%%', '%%admin_pages%%'],
+            [$stats['auth_ok'], $stats['auth_fail'], $stats['auth_ok'], $adminPagesHtml],
+            $text
+        );
+
+        if (
+            $this->helper->sendEmail(
+                $email,
+                $this->getLang('email_report_subject') . ' ' . DOKU_URL,
+                $text
+            )
+        ) {
+            // log itself
+            $this->helper->writeLine('loglog - report');
+            // touch statfile
+            touch($statfile);
         }
     }
 }

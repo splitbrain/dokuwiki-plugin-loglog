@@ -67,6 +67,45 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
     }
 
     /**
+     * Go through supplied log lines and aggregate basic activity statistics
+     *
+     * @param array $lines
+     * @return array
+     */
+    public function getStats(array $lines)
+    {
+        $authOk = 0;
+        $authFail = 0;
+        $users = [];
+        $pages = ['start' => 0];
+
+        foreach ($lines as $line) {
+            if (strpos($line, $this->getNotificationString(self::CONTEXT_AUTH_OK, 'msgNeedle')) !== false) {
+                $authOk++;
+                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
+                if ($user) $users[] = $user;
+            } elseif (strpos($line, $this->getNotificationString(self::CONTEXT_AUTH_FAIL, 'msgNeedle')) !== false) {
+                $authFail++;
+            } elseif (strpos($line, 'admin') !== false) {
+                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
+                list($action, $page) = explode(' - ', $msg);
+                if ($page) {
+                    $pages[$page] = !isset($pages[$page]) ? 1 : $pages[$page] + 1;
+                } else {
+                    $pages['start']++;
+                }
+            }
+        }
+
+        return [
+            self::CONTEXT_AUTH_OK => $authOk,
+            self::CONTEXT_AUTH_FAIL => $authFail,
+            'users' => count(array_unique($users)),
+            'admin' => $pages
+        ];
+    }
+
+    /**
      * Check if any configured thresholds have been exceeded and trigger
      * alert notifications accordingly.
      *
@@ -108,39 +147,33 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
 
             $msgNeedle = $this->getNotificationString($context, 'msgNeedle');
             $lines = $this->readLines($min, $max);
-            $cnt = array_reduce(
-                $lines,
-                function ($carry, $line) use ($msgNeedle) {
-                    $carry = $carry + (int) (strpos($line, $msgNeedle) !== false);
-                    return $carry;
-                },
-                0
-            );
+            $cnt = $this->countMatchingLines($lines, $msgNeedle);
             if ($cnt >= $threshold) {
-                $this->sendAlert(
+                $text = $this->locale_xhtml($context);
+                $this->sendEmail(
                     $email,
                     $this->getLang($this->getNotificationString($context, 'emailSubjectLang')) . ' ' . DOKU_URL,
-                    $context
+                    $text
                 );
             }
         }
     }
 
     /**
-     * Sends the alert email
+     * Sends emails
      *
      * @param string $email
      * @param string $subject
-     * @param string $template
+     * @param string $text
+     * @return bool
      */
-    protected function sendAlert($email, $subject, $template)
+    public function sendEmail($email, $subject, $text)
     {
         $mail = new Mailer();
         $mail->to($email);
         $mail->subject($subject);
-        $text = $this->locale_xhtml($template);
         $mail->setBody($text);
-        $mail->send();
+        return $mail->send();
     }
 
     /**
@@ -230,6 +263,25 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
         fclose($fp);
 
         return $lines;
+    }
+
+    /**
+     * Returns the number of lines where the given needle has been found
+     *
+     * @param array $lines
+     * @param string $msgNeedle
+     * @return mixed
+     */
+    protected function countMatchingLines(array $lines, string $msgNeedle)
+    {
+        return array_reduce(
+            $lines,
+            function ($carry, $line) use ($msgNeedle) {
+                $carry = $carry + (int)(strpos($line, $msgNeedle) !== false);
+                return $carry;
+            },
+            0
+        );
     }
 
 }

@@ -22,3 +22,4 @@ $lang['filter_other'] = 'Andere';
 
 $lang['email_max_success_logins_subject'] = 'Warnung: Zu viele Anmeldungen auf';
 $lang['email_max_failed_logins_subject'] = 'Warnung: Zu viele fehlgeschlagene Anmeldeveruche auf';
+$lang['email_report_subject'] = 'Monatlicher Log-Bericht für';

@@ -1,0 +1,11 @@
+Usage Report for Last Month
+
+Logins
+
+  - successful logins: %%auth_ok%%
+  - failed login attempts: %%auth_fail%%
+  - number of logged in users: %%users%%
+
+Admin Tools
+
+%%admin_pages%%

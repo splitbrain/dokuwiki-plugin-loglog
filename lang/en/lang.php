@@ -23,3 +23,4 @@ $lang['filter_other'] = 'Other';
 
 $lang['email_max_success_logins_subject'] = 'Alert: Too many logins for';
 $lang['email_max_failed_logins_subject'] = 'Alert: Too many failed login attempts for';
+$lang['email_report_subject'] = 'Monthly log report for';
