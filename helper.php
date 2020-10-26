@@ -152,7 +152,7 @@ class helper_plugin_loglog extends \dokuwiki\Extension\Plugin
                 $text = $this->locale_xhtml($context);
                 $this->sendEmail(
                     $email,
-                    $this->getLang($this->getNotificationString($context, 'emailSubjectLang')) . ' ' . DOKU_URL,
+                    $this->getLang($this->getNotificationString($context, 'emailSubjectLang')),
                     $text
                 );
             }

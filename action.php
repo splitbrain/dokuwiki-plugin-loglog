@@ -314,7 +314,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         if (
             $this->helper->sendEmail(
                 $email,
-                $this->getLang('email_report_subject') . ' ' . DOKU_URL,
+                $this->getLang('email_report_subject'),
                 $text
             )
         ) {
