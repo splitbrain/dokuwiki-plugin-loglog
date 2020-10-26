@@ -9,13 +9,19 @@
 class action_plugin_loglog extends DokuWiki_Action_Plugin
 {
     /**
-     * @var helper_plugin_loglog
+     * @var \helper_plugin_loglog_logging
      */
-    protected $helper;
+    protected $logHelper;
+
+    /**
+     * @var \helper_plugin_loglog_main
+     */
+    protected $mainHelper;
 
     public function __construct()
     {
-        $this->helper = $this->loadHelper('loglog');
+        $this->mainHelper = $this->loadHelper('loglog_main');
+        $this->logHelper = $this->loadHelper('loglog_logging');
     }
 
     /** @inheritDoc */
@@ -94,10 +100,10 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      */
     protected function logAuth($msg, $user = null)
     {
-        $this->helper->writeLine($msg, $user);
+        $this->logHelper->writeLine($msg, $user);
 
         // trigger alert notifications if necessary
-        $this->helper->checkAlertThresholds();
+        $this->mainHelper->checkAlertThresholds();
     }
 
     /**
@@ -113,7 +119,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         $page = $INPUT->str('page');
         if ($page) $msg .= " - $page";
         if ($more && $more !== $page) $msg .= " - $more";
-        $this->helper->writeLine($msg,null, $data);
+        $this->logHelper->writeLine($msg,null, $data);
     }
 
     /**
@@ -135,7 +141,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             $user = null;
         }
 
-        $this->helper->writeLine($log, $user);
+        $this->logHelper->writeLine($log, $user);
     }
 
     /**
@@ -272,57 +278,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      */
     public function handleReport(Doku_Event $event)
     {
-        $email = $this->getConf('report_email');
-        if (!$email) return;
-
-        // calculate cutoff dates
-        $lastMonthStart = mktime(0, 0, 0, date('n', strtotime('last month')), 1);
-        $currentMonthStart = mktime(0, 0, 0, date('n'), 1);
-
-        // check if the report is due
-        global $conf;
-        $statfile = $conf['cachedir'] . '/loglog.stat';
-        if (is_file($statfile) && filemtime($statfile) >= $currentMonthStart) {
-            return;
-        }
-
-        // calculate stat
-        $monthLines = $this->helper->readLines($lastMonthStart, $currentMonthStart);
-        $stats = $this->helper->getStats($monthLines);
-
-        // email the report
-        $text = $this->locale_xhtml('report');
-        // format access to admin pages
-        $syntax = implode(
-            "\n",
-            array_map(
-                function ($page, $cnt) {
-                    return "  - $page: $cnt";
-                },
-                array_keys($stats['admin']),
-                $stats['admin']
-            )
-        );
-        $adminPagesHtml = p_render('xhtml', p_get_instructions($syntax), $info);
-
-        $text = str_replace(
-            ['@@auth_ok@@', '@@auth_fail@@', '@@users@@', '@@admin_pages@@'],
-            [$stats['auth_success'], $stats['auth_failed'], $stats['auth_users'], $adminPagesHtml],
-            $text
-        );
-
-        if (
-            $this->helper->sendEmail(
-                $email,
-                $this->getLang('email_report_subject'),
-                $text
-            )
-        ) {
-            // log itself
-            $this->helper->writeLine('loglog - report', 'cron');
-            // touch statfile
-            touch($statfile);
-        }
+        $reportHelper = new helper_plugin_loglog_report();
+        $reportHelper->create();
     }
 }
 

@@ -3,9 +3,14 @@
 class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 {
     /**
-     * @var helper_plugin_loglog
+     * @var \helper_plugin_loglog_logging
      */
-    protected $helper;
+    protected $logHelper;
+
+    /**
+     * @var \helper_plugin_loglog_main
+     */
+    protected $mainHelper;
 
     /**
      * @var string
@@ -26,7 +31,8 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 
     public function __construct()
     {
-        $this->helper = $this->loadHelper('loglog');
+        $this->logHelper = $this->loadHelper('loglog_logging');
+        $this->mainHelper = $this->loadHelper('loglog_main');
 
         global $INPUT;
         $this->filter = $INPUT->str('filter');
@@ -85,7 +91,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '<th>'. $this->getLang('data') . '</th>';
         echo '</tr>';
 
-        $lines = $this->helper->readLines($min, $max);
+        $lines = $this->logHelper->readLines($min, $max);
         $lines = array_reverse($lines);
 
         foreach ($lines as $line) {
@@ -96,7 +102,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             if ($dt > $max) continue;
             if (!$user) continue;
 
-            $lineFilter = $this->helper->getFilterFromMsg($msg);
+            $lineFilter = $this->mainHelper->getActionTypeFromMsg($msg);
 
             if ($this->filter && $this->filter !== 'all' && $this->filter!== $lineFilter) {
                 continue;
