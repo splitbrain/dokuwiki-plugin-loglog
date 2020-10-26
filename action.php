@@ -306,7 +306,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         $adminPagesHtml = p_render('xhtml', p_get_instructions($syntax), $info);
 
         $text = str_replace(
-            ['??auth_ok??', '??auth_fail??', '??users??', '??admin_pages??'],
+            ['@@auth_ok@@', '@@auth_fail@@', '@@users@@', '@@admin_pages@@'],
             [$stats['auth_success'], $stats['auth_failed'], $stats['auth_users'], $adminPagesHtml],
             $text
         );
