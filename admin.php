@@ -145,7 +145,8 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
             echo '<td>';
             if ($data) {
-                echo '<pre>' . json_encode(unserialize($data), JSON_PRETTY_PRINT) . '</pre>';
+                // logs contain single-line JSON data, so we have to decode and encode it again for pretty print
+                echo '<pre>' . json_encode(json_decode($data), JSON_PRETTY_PRINT) . '</pre>';
             }
             echo '</td>';
             echo '</tr>';

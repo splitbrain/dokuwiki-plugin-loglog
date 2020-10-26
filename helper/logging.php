@@ -25,7 +25,7 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
 
         $t = time();
         $ip = clientIP(true);
-        $data = !empty($data) ? serialize($data) : '';
+        $data = !empty($data) ? json_encode($data) : '';
 
         $line = join("\t", [$t, strftime($conf['dformat'], $t), $ip, $user, $msg, $data]);
 
