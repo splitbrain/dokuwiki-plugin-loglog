@@ -2,4 +2,4 @@ Achtung!
 
 Der konfigurierte Schwellwert für Anmeldungen wurde überschritten!
 
-Sie sollen sich an den Administrator wenden, um das Problem zu untersuchen.
+Sie können das Problem untersuchen, indem Sie sich ins Wiki einloggen und die Logs im Adminbereich überprüfen.
