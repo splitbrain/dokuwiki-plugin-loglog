@@ -46,9 +46,10 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
         $stats = $this->getStats($monthLines);
 
         // email the report
-        $text = $this->locale_xhtml('report');
+        $template = $this->localFN('report');
+        $text = file_get_contents($template);
         // format access to admin pages
-        $syntax = implode(
+        $adminPages = implode(
             "\n",
             array_map(
                 function ($page, $cnt) {
@@ -58,11 +59,10 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
                 $stats['admin']
             )
         );
-        $adminPagesHtml = p_render('xhtml', p_get_instructions($syntax), $info);
 
         $text = str_replace(
             ['@@auth_ok@@', '@@auth_fail@@', '@@users@@', '@@admin_pages@@'],
-            [$stats['auth_success'], $stats['auth_failed'], $stats['auth_users'], $adminPagesHtml],
+            [$stats['auth_success'], $stats['auth_failed'], $stats['users'], $adminPages],
             $text
         );
 

@@ -99,7 +99,8 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
         $lines = $this->logHelper->readLines($min, $max);
         $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle);
         if ($cnt >= $threshold) {
-            $text = $this->locale_xhtml($logType);
+            $template = $this->localFN($logType);
+            $text = file_get_contents($template);
             $this->sendEmail(
                 $email,
                 $this->getLang($this->getNotificationString($logType, 'emailSubjectLang')),
@@ -118,10 +119,12 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
      */
     public function sendEmail($email, $subject, $text)
     {
+        $html = p_render('xhtml', p_get_instructions($text), $info);
+
         $mail = new Mailer();
         $mail->to($email);
         $mail->subject($subject);
-        $mail->setBody($text);
+        $mail->setBody($text, null, null, $html);
         return $mail->send();
     }
 
