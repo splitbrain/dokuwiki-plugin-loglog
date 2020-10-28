@@ -85,7 +85,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
 
         // log other admin actions
         $controller->register_hook(
-            'DOKUWIKI_DONE',
+            'INDEXER_TASKS_RUN',
             'AFTER',
             $this,
             'handleReport'
