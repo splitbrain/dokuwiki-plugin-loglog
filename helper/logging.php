@@ -5,8 +5,13 @@
  */
 class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
 {
-    const CONTEXT_AUTH_OK = 'auth_success';
-    const CONTEXT_AUTH_FAIL = 'auth_failed';
+    protected $file = '';
+
+    public function __construct()
+    {
+        global $conf;
+        $this->file = $conf['cachedir'] . '/loglog.log';
+    }
 
     /**
      * Build a log entry from passed data and write a single line to log file
@@ -29,7 +34,7 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
 
         $line = join("\t", [$t, strftime($conf['dformat'], $t), $ip, $user, $msg, $data]);
 
-        io_saveFile($conf['cachedir'] . '/loglog.log', "$line\n", true);
+        io_saveFile($this->file, "$line\n", true);
     }
 
     /**
@@ -41,15 +46,12 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
      */
     public function readLines($min, $max)
     {
-        global $conf;
-        $file = $conf['cachedir'] . '/loglog.log';
-
         $data = array();
         $lines = array();
         $chunk_size = 8192;
 
-        if (!@file_exists($file)) return $data;
-        $fp = fopen($file, 'rb');
+        if (!@file_exists($this->file)) return $data;
+        $fp = fopen($this->file, 'rb');
         if ($fp === false) return $data;
 
         //seek to end

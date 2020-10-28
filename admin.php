@@ -56,7 +56,6 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             }
         }
 
-        $filter = $INPUT->str('filter') ?: 'all';
         $time = $INPUT->str('time') ?: $now;
 
         echo $this->locale_xhtml('intro');
@@ -68,7 +67,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         $form->addDropdown(
             'filter',
             [
-                'all' => $this->getLang('filter_all'),
+                '' => '',
                 'auth_ok' => $this->getLang('filter_auth_ok'),
                 'auth_error' => $this->getLang('filter_auth_error'),
                 'admin' => $this->getLang('filter_admin'),
@@ -102,9 +101,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             if ($dt > $max) continue;
             if (!$user) continue;
 
-            $lineFilter = $this->mainHelper->getActionTypeFromMsg($msg);
+            $logType = $this->mainHelper->getLogTypeFromMsg($msg);
 
-            if ($this->filter && $this->filter !== 'all' && $this->filter!== $lineFilter) {
+            if ($this->filter && $this->filter !== '' && $this->filter!== $logType) {
                 continue;
             }
 

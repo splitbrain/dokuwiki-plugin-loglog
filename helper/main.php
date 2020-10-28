@@ -5,8 +5,8 @@
  */
 class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
 {
-    const CONTEXT_AUTH_OK = 'auth_success';
-    const CONTEXT_AUTH_FAIL = 'auth_failed';
+    const LOGTYPE_AUTH_OK = 'auth_success';
+    const LOGTYPE_AUTH_FAIL = 'auth_failed';
 
     /**
      * @var helper_plugin_loglog_logging
@@ -19,13 +19,13 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
     }
 
     /**
-     * Deduce action type from message field. Those types are used in a dropdown filter
+     * Deduce the type of logged event from message field. Those types are used in a dropdown filter
      * in admin listing of activities, as well as when generating reports to send per email.
      *
      * @param string $msg
      * @return string
      */
-    public function getActionTypeFromMsg($msg)
+    public function getLogTypeFromMsg($msg)
     {
         $filter = 'other';
         if (in_array(
@@ -61,14 +61,14 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
     public function checkAlertThresholds()
     {
         $this->handleThreshold(
-            self::CONTEXT_AUTH_FAIL,
+            self::LOGTYPE_AUTH_FAIL,
             $this->getConf('login_failed_max'),
             $this->getConf('login_failed_interval'),
             $this->getConf('login_failed_email')
         );
 
         $this->handleThreshold(
-            self::CONTEXT_AUTH_OK,
+            self::LOGTYPE_AUTH_OK,
             $this->getConf('login_success_max'),
             $this->getConf('login_success_interval'),
             $this->getConf('login_success_email')
@@ -76,33 +76,35 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
     }
 
     /**
-     * Evaluates threshold configuration for given context and triggers email alerts.
+     * Evaluates threshold configuration for given type of logged event
+     * and triggers email alerts.
      *
-     * @param string $context
+     * @param string $logType
      * @param int $threshold
      * @param int $interval
      * @param string $email
      */
-    protected function handleThreshold($context, $threshold, $interval, $email)
+    protected function handleThreshold($logType, $threshold, $interval, $email)
     {
-        // proceed only if context has sufficient configuration
-        if ($email && $threshold && $interval) {
-            $now = time();
+        // proceed only if we have sufficient configuration
+        if (! $email || ! $threshold || ! $interval) {
+            return;
+        }
+        $now = time();
 
-            $max = $now;
-            $min = $now - ($interval / 60);
+        $max = $now;
+        $min = $now - ($interval / 60);
 
-            $msgNeedle = $this->getNotificationString($context, 'msgNeedle');
-            $lines = $this->logHelper->readLines($min, $max);
-            $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle);
-            if ($cnt >= $threshold) {
-                $text = $this->locale_xhtml($context);
-                $this->sendEmail(
-                    $email,
-                    $this->getLang($this->getNotificationString($context, 'emailSubjectLang')),
-                    $text
-                );
-            }
+        $msgNeedle = $this->getNotificationString($logType, 'msgNeedle');
+        $lines = $this->logHelper->readLines($min, $max);
+        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle);
+        if ($cnt >= $threshold) {
+            $text = $this->locale_xhtml($logType);
+            $this->sendEmail(
+                $email,
+                $this->getLang($this->getNotificationString($logType, 'emailSubjectLang')),
+                $text
+            );
         }
     }
 
@@ -134,11 +136,11 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
     public function getNotificationString($context, $key)
     {
         $stringRepo = [
-            self::CONTEXT_AUTH_FAIL => [
+            self::LOGTYPE_AUTH_FAIL => [
                 'msgNeedle' => 'failed login attempt',
                 'emailSubjectLang' => 'email_max_failed_logins_subject'
             ],
-            self::CONTEXT_AUTH_OK => [
+            self::LOGTYPE_AUTH_OK => [
                 'msgNeedle' => 'logged in',
                 'emailSubjectLang' => 'email_max_success_logins_subject'
             ],

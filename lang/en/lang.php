@@ -15,7 +15,6 @@ $lang['fail'] = 'failed login attempt';
 
 $lang['data'] = 'Data';
 $lang['submit'] = 'Apply filter';
-$lang['filter_all'] = 'All';
 $lang['filter_auth_ok'] = 'User logins and logoffs';
 $lang['filter_auth_error'] = 'Failed login attempts';
 $lang['filter_admin'] = 'Admin';

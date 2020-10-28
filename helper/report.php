@@ -21,7 +21,11 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
         $this->logHelper = $this->loadHelper('loglog_logging');
     }
 
-    public function create()
+    /**
+     * Checks if the report has already been sent this month. If not, creates and
+     * sends the report, and records this action in the log.
+     */
+    public function handleReport()
     {
         $email = $this->getConf('report_email');
         if (!$email) return;
@@ -63,11 +67,11 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
         );
 
         if (
-        $this->mainHelper->sendEmail(
-            $email,
-            $this->getLang('email_report_subject'),
-            $text
-        )
+            $this->mainHelper->sendEmail(
+                $email,
+                $this->getLang('email_report_subject'),
+                $text
+            )
         ) {
             // log itself
             $this->logHelper->writeLine('loglog - report', 'cron');
@@ -93,7 +97,7 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
             if (
                 strpos(
                     $line,
-                    $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::CONTEXT_AUTH_OK, 'msgNeedle')
+                    $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::LOGTYPE_AUTH_OK, 'msgNeedle')
                 ) !== false
             ) {
                 $authOk++;
@@ -102,7 +106,7 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
             } elseif (
                 strpos(
                     $line,
-                    $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::CONTEXT_AUTH_FAIL, 'msgNeedle')
+                    $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::LOGTYPE_AUTH_FAIL, 'msgNeedle')
                 ) !== false
             ) {
                 $authFail++;
@@ -118,8 +122,8 @@ class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
         }
 
         return [
-            \helper_plugin_loglog_main::CONTEXT_AUTH_OK => $authOk,
-            \helper_plugin_loglog_main::CONTEXT_AUTH_FAIL => $authFail,
+            \helper_plugin_loglog_main::LOGTYPE_AUTH_OK => $authOk,
+            \helper_plugin_loglog_main::LOGTYPE_AUTH_FAIL => $authFail,
             'users' => count(array_unique($users)),
             'admin' => $pages
         ];

@@ -279,7 +279,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     public function handleReport(Doku_Event $event)
     {
         $reportHelper = new helper_plugin_loglog_report();
-        $reportHelper->create();
+        $reportHelper->handleReport();
     }
 }
 
