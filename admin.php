@@ -2,29 +2,81 @@
 
 class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 {
+    /**
+     * @var \helper_plugin_loglog_logging
+     */
+    protected $logHelper;
+
+    /**
+     * @var \helper_plugin_loglog_main
+     */
+    protected $mainHelper;
+
+    /**
+     * @var string
+     */
+    protected $filter = '';
 
     /** @inheritDoc */
-    function forAdminOnly()
+    public function forAdminOnly()
     {
         return false;
     }
 
     /** @inheritDoc */
-    function getMenuSort()
+    public function getMenuSort()
     {
         return 141;
     }
 
-    /** @inheritDoc */
-    function html()
+    public function __construct()
     {
-        global $ID, $conf, $lang;
+        $this->logHelper = $this->loadHelper('loglog_logging');
+        $this->mainHelper = $this->loadHelper('loglog_main');
+
+        global $INPUT;
+        $this->filter = $INPUT->str('filter');
+    }
+
+
+    /** @inheritDoc */
+    public function html()
+    {
+        global $ID, $INPUT, $conf, $lang;
         $now = time();
         $go = isset($_REQUEST['time']) ? intval($_REQUEST['time']) : $now;
         $min = $go - (7 * 24 * 60 * 60);
         $max = $go;
 
+        $past = $now - $go > 60 * 60 * 5;
+        if ($past) {
+            $next = $max + (7 * 24 * 60 * 60);
+            if ($now - $next < 60 * 60 * 5) {
+                $next = $now;
+            }
+        }
+
+        $time = $INPUT->str('time') ?: $now;
+
         echo $this->locale_xhtml('intro');
+
+        $form = new dokuwiki\Form\Form(['method'=>'GET']);
+        $form->setHiddenField('do', 'admin');
+        $form->setHiddenField('page', 'loglog');
+        $form->setHiddenField('time', $time);
+        $form->addDropdown(
+            'filter',
+            [
+                '' => '',
+                'auth_ok' => $this->getLang('filter_auth_ok'),
+                'auth_error' => $this->getLang('filter_auth_error'),
+                'admin' => $this->getLang('filter_admin'),
+                'other' => $this->getLang('filter_other')
+            ]
+        );
+        $form->addButton('submit', $this->getLang('submit'))->attr('type','submit');
+        echo $form->toHTML();
+
 
         echo '<p>' . $this->getLang('range') . ' ' . strftime($conf['dformat'], $min) .
             ' - ' . strftime($conf['dformat'], $max) . '</p>';
@@ -35,17 +87,25 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo '<th>' . $this->getLang('ip') . '</th>';
         echo '<th>' . $lang['user'] . '</th>';
         echo '<th>' . $this->getLang('action') . '</th>';
+        echo '<th>'. $this->getLang('data') . '</th>';
         echo '</tr>';
 
-        $lines = $this->readLines($min, $max);
+        $lines = $this->logHelper->readLines($min, $max);
         $lines = array_reverse($lines);
 
         foreach ($lines as $line) {
             if (empty($line)) continue; // Filter empty lines
-            list($dt, $junk, $ip, $user, $msg) = explode("\t", $line, 5);
+
+            list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
             if ($dt < $min) continue;
             if ($dt > $max) continue;
             if (!$user) continue;
+
+            $logType = $this->mainHelper->getLogTypeFromMsg($msg);
+
+            if ($this->filter && $this->filter !== '' && $this->filter!== $logType) {
+                continue;
+            }
 
             if ($msg == 'logged off') {
                 $msg = $this->getLang('off');
@@ -82,92 +142,36 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo '<td>' . hsc($ip) . '</td>';
             echo '<td>' . hsc($user) . '</td>';
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
+            echo '<td>';
+            if ($data) {
+                // logs contain single-line JSON data, so we have to decode and encode it again for pretty print
+                echo '<pre>' . json_encode(json_decode($data), JSON_PRETTY_PRINT) . '</pre>';
+            }
+            echo '</td>';
             echo '</tr>';
         }
 
         echo '</table>';
 
         echo '<div class="pagenav">';
-        if ($now - $go > 60 * 60 * 5) {
-            $next = $max + (7 * 24 * 60 * 60);
-            if ($now - $next < 60 * 60 * 5) {
-                $next = $now;
-            }
-
+        if ($past) {
             echo '<div class="pagenav-prev">';
-            echo html_btn('newer', $ID, "p", array('do' => 'admin', 'page' => 'loglog', 'time' => $next));
+            echo html_btn('newer',
+                $ID,
+                "p",
+                ['do' => 'admin', 'page' => 'loglog', 'time' => $next, 'filter' => $filter]
+            );
             echo '</div>';
         }
 
         echo '<div class="pagenav-next">';
-        echo html_btn('older', $ID, "n", array('do' => 'admin', 'page' => 'loglog', 'time' => $min));
+        echo html_btn('older',
+            $ID,
+            "n",
+            ['do' => 'admin', 'page' => 'loglog', 'time' => $min, 'filter' => $filter]
+        );
         echo '</div>';
         echo '</div>';
 
-    }
-
-    /**
-     * Read loglines backward
-     *
-     * @param int $min start time (in seconds)
-     * @param int $max end time (in seconds)
-     * @return array
-     */
-    function readLines($min, $max)
-    {
-        global $conf;
-        $file = $conf['cachedir'] . '/loglog.log';
-
-        $data = array();
-        $lines = array();
-        $chunk_size = 8192;
-
-        if (!@file_exists($file)) return $data;
-        $fp = fopen($file, 'rb');
-        if ($fp === false) return $data;
-
-        //seek to end
-        fseek($fp, 0, SEEK_END);
-        $pos = ftell($fp);
-        $chunk = '';
-
-        while ($pos) {
-
-            // how much to read? Set pointer
-            if ($pos > $chunk_size) {
-                $pos -= $chunk_size;
-                $read = $chunk_size;
-            } else {
-                $read = $pos;
-                $pos = 0;
-            }
-            fseek($fp, $pos);
-
-            $tmp = fread($fp, $read);
-            if ($tmp === false) break;
-            $chunk = $tmp . $chunk;
-
-            // now split the chunk
-            $cparts = explode("\n", $chunk);
-
-            // keep the first part in chunk (may be incomplete)
-            if ($pos) $chunk = array_shift($cparts);
-
-            // no more parts available, read on
-            if (!count($cparts)) continue;
-
-            // get date of first line:
-            list($cdate) = explode("\t", $cparts[0]);
-
-            if ($cdate > $max) continue; // haven't reached wanted area, yet
-
-            // put the new lines on the stack
-            $lines = array_merge($cparts, $lines);
-
-            if ($cdate < $min) break; // we have enough
-        }
-        fclose($fp);
-
-        return $lines;
     }
 }

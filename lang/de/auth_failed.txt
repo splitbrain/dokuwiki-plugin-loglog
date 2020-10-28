@@ -1,0 +1,5 @@
+Achtung!
+
+Der konfigurierte Schwellwert für fehlgeschlagene Anmeldeveruche wurde überschritten!
+
+Sie können das Problem untersuchen, indem Sie sich ins Wiki einloggen und die Logs im Adminbereich überprüfen.

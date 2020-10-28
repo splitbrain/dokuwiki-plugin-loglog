@@ -8,16 +8,31 @@
 
 class action_plugin_loglog extends DokuWiki_Action_Plugin
 {
+    /**
+     * @var \helper_plugin_loglog_logging
+     */
+    protected $logHelper;
+
+    /**
+     * @var \helper_plugin_loglog_main
+     */
+    protected $mainHelper;
+
+    public function __construct()
+    {
+        $this->mainHelper = $this->loadHelper('loglog_main');
+        $this->logHelper = $this->loadHelper('loglog_logging');
+    }
 
     /** @inheritDoc */
     function register(Doku_Event_Handler $controller)
     {
+        // tasks to perform on login/logoff
         $controller->register_hook(
             'ACTION_ACT_PREPROCESS',
             'BEFORE',
             $this,
-            'handle_before',
-            array()
+            'handleAuth'
         );
 
         // allow other plugins to emit logging events
@@ -25,8 +40,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'PLUGIN_LOGLOG_LOG',
             'BEFORE',
             $this,
-            'handle_custom',
-            array()
+            'handleCustom'
         );
 
         // autologout plugin
@@ -34,30 +48,78 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             'ACTION_AUTH_AUTOLOGOUT',
             'BEFORE',
             $this,
-            'handle_autologout',
-            array()
+            'handleAutologout'
+        );
+
+        // log admin access
+        $controller->register_hook(
+            'ACTION_ACT_PREPROCESS',
+            'BEFORE',
+            $this,
+            'handleAdminAccess'
+        );
+
+        // log user modifications
+        $controller->register_hook(
+            'AUTH_USER_CHANGE',
+            'BEFORE',
+            $this,
+            'handleUsermod'
+        );
+
+        // log admin actions triggered via Ajax
+        $controller->register_hook(
+            'AJAX_CALL_UNKNOWN',
+            'AFTER',
+            $this,
+            'handleAjax'
+        );
+
+        // log other admin actions
+        $controller->register_hook(
+            'DOKUWIKI_STARTED',
+            'AFTER',
+            $this,
+            'handleOther'
+        );
+
+        // log other admin actions
+        $controller->register_hook(
+            'DOKUWIKI_DONE',
+            'AFTER',
+            $this,
+            'handleReport'
         );
     }
 
     /**
-     * Log an action
+     * Log login/logoff actions
      *
      * @param $msg
      * @param null|string $user
      */
-    protected function logAccess($msg, $user = null)
+    protected function logAuth($msg, $user = null)
     {
-        global $conf;
+        $this->logHelper->writeLine($msg, $user);
+
+        // trigger alert notifications if necessary
+        $this->mainHelper->checkAlertThresholds();
+    }
+
+    /**
+     * Log usage of admin tools
+     *
+     * @param array $data
+     * @param string $more
+     */
+    protected function logAdmin(array $data = [], $more = '')
+    {
         global $INPUT;
-
-        if (is_null($user)) $user = $INPUT->server->str('REMOTE_USER');
-        if (!$user) $user = $_REQUEST['u'];
-        if (!$user) return;
-
-        $t = time();
-        $ip = clientIP(true);
-        $log = $t . "\t" . strftime($conf['dformat'], $t) . "\t" . $ip . "\t" . $user . "\t" . $msg;
-        io_saveFile($conf['cachedir'] . '/loglog.log', "$log\n", true);
+        $msg = 'admin';
+        $page = $INPUT->str('page');
+        if ($page) $msg .= " - $page";
+        if ($more && $more !== $page) $msg .= " - $more";
+        $this->logHelper->writeLine($msg,null, $data);
     }
 
     /**
@@ -66,7 +128,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_custom(Doku_Event $event, $param)
+    public function handleCustom(Doku_Event $event, $param)
     {
         if (isset($event->data['message'])) {
             $log = $event->data['message'];
@@ -79,7 +141,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
             $user = null;
         }
 
-        $this->logAccess($log, $user);
+        $this->logHelper->writeLine($log, $user);
     }
 
     /**
@@ -88,31 +150,136 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_autologout(Doku_Event $event, $param)
+    public function handleAutologout(Doku_Event $event, $param)
     {
-        $this->logAccess('has been automatically logged off');
+        $this->logAuth('has been automatically logged off');
     }
 
     /**
-     * catch standard logins/logouts
+     * catch standard logins/logouts, check if any alert notifications should be sent
      *
      * @param Doku_Event $event
      * @param mixed $param data passed to the event handler
      */
-    public function handle_before(Doku_Event $event, $param)
+    public function handleAuth(Doku_Event $event, $param)
     {
+        // log authentication events
         $act = act_clean($event->data);
         if ($act == 'logout') {
-            $this->logAccess('logged off');
+            $this->logAuth('logged off');
         } elseif (!empty($_SERVER['REMOTE_USER']) && $act == 'login') {
             if (isset($_REQUEST['r'])) {
-                $this->logAccess('logged in permanently');
+                $this->logAuth('logged in permanently');
             } else {
-                $this->logAccess('logged in temporarily');
+                $this->logAuth('logged in temporarily');
             }
         } elseif ($_REQUEST['u'] && empty($_REQUEST['http_credentials']) && empty($_SERVER['REMOTE_USER'])) {
-            $this->logAccess('failed login attempt');
+            $this->logAuth('failed login attempt');
         }
+    }
+
+    /**
+     * Log access to admin pages
+     *
+     * @param Doku_Event $event
+     */
+    public function handleAdminAccess(Doku_Event $event)
+    {
+        global $ACT;
+        if ($ACT === 'admin') {
+            $this->logAdmin();
+        }
+    }
+
+    /**
+     * Log actions in user manager
+     *
+     * @param Doku_Event $event
+     */
+    public function handleUsermod(Doku_Event $event)
+    {
+        $modType = $event->data['type'];
+        $modUser = $event->data['params'][0];
+        if (is_array($modUser)) $modUser = implode(', ', $modUser);
+
+        $this->logAdmin([$modType . ' user', $modUser]);
+    }
+
+    /**
+     * Catch admin actions performed via Ajax
+     *
+     * @param Doku_Event $event
+     */
+    public function handleAjax(Doku_Event $event)
+    {
+        global $INPUT;
+
+        // extension manager
+        if ($event->data === 'plugin_extension') {
+            $this->logAdmin([$INPUT->str('act') . ' ' . $INPUT->str('ext')], 'extension');
+        }
+    }
+
+    /**
+     * @param \Doku_Event $event
+     */
+    public function handleOther(\Doku_Event $event)
+    {
+        global $INPUT;
+
+        // configuration manager
+        if ($INPUT->str('page') === 'config'
+            && $INPUT->bool('save') === true
+            && !empty($INPUT->arr('config'))
+        ) {
+            $this->logAdmin(['save config']);
+        }
+
+        // extension manager
+        if ($INPUT->str('page') === 'extension') {
+            if ($INPUT->post->has('fn')) {
+                $actions = $INPUT->post->arr('fn');
+                foreach ($actions as $action => $extensions) {
+                    foreach ($extensions as $extname => $label) {
+                        $this->logAdmin([$action, $extname]);
+                    }
+                }
+            } elseif ($INPUT->post->str('installurl')) {
+                $this->logAdmin(['installurl', $INPUT->post->str('installurl')]);
+            } elseif (isset($_FILES['installfile'])) {
+                $this->logAdmin(['installfile', $_FILES['installfile']['name']]);
+            }
+        }
+
+        // ACL manager
+        if ($INPUT->str('page') === 'acl' && $INPUT->has('cmd')) {
+            $cmd = $INPUT->extract('cmd')->str('cmd');
+            $del = $INPUT->arr('del');
+            if ($cmd === 'update' && !empty($del)) {
+                $cmd = 'delete';
+                $rule = $del;
+            } else {
+                $rule = [
+                    'ns' => $INPUT->str('ns'),
+                    'acl_t' => $INPUT->str('acl_t'),
+                    'acl_w' => $INPUT->str('acl_w'),
+                    'acl' => $INPUT->str('acl')
+                ];
+            }
+
+            $this->logAdmin([$cmd, $rule]);
+        }
+    }
+
+    /**
+     * Handle monthly usage reports
+     *
+     * @param Doku_Event $event
+     */
+    public function handleReport(Doku_Event $event)
+    {
+        $reportHelper = new helper_plugin_loglog_report();
+        $reportHelper->handleReport();
     }
 }
 
