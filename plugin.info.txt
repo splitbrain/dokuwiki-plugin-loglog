@@ -1,7 +1,7 @@
 base    loglog
 author  Andreas Gohr
 email   dokuwiki@cosmocode.de
-date    2020-10-28
+date    2020-10-29
 name    Login/Logout logging plugin
 desc    Log logins, logouts and admin activity to a file
 url     http://www.dokuwiki.org/plugin:loglog
