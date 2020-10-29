@@ -93,11 +93,11 @@ class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
         $now = time();
 
         $max = $now;
-        $min = $now - ($interval / 60);
+        $min = $now - ($interval * 60);
 
         $msgNeedle = $this->getNotificationString($logType, 'msgNeedle');
         $lines = $this->logHelper->readLines($min, $max);
-        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle);
+        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle, $min, $max);
         if ($cnt >= $threshold) {
             $template = $this->localFN($logType);
             $text = file_get_contents($template);

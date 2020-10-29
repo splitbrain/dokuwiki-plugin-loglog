@@ -38,7 +38,9 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
     }
 
     /**
-     * Read loglines backwards
+     * Read log lines backwards. Start and end timestamps are used to evaluate
+     * only the chunks being read, NOT single lines. This method will return
+     * too many lines, the dates have to be checked be the caller again.
      *
      * @param int $min start time (in seconds)
      * @param int $max end time (in seconds)
@@ -89,7 +91,7 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
 
             if ($cdate > $max) continue; // haven't reached wanted area, yet
 
-            // put the new lines on the stack
+            // put all the lines from the chunk on the stack
             $lines = array_merge($cparts, $lines);
 
             if ($cdate < $min) break; // we have enough
@@ -104,14 +106,19 @@ class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
      *
      * @param array $lines
      * @param string $msgNeedle
+     * @param int $min
+     * @param int $max
      * @return mixed
      */
-    public function countMatchingLines(array $lines, string $msgNeedle)
+    public function countMatchingLines(array $lines, string $msgNeedle, int $min, int $max)
     {
         return array_reduce(
             $lines,
-            function ($carry, $line) use ($msgNeedle) {
-                $carry = $carry + (int)(strpos($line, $msgNeedle) !== false);
+            function ($carry, $line) use ($msgNeedle, $min, $max) {
+                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
+                if ($dt >= $min && $dt <= $max) {
+                    $carry = $carry + (int)(strpos($line, $msgNeedle) !== false);
+                }
                 return $carry;
             },
             0
