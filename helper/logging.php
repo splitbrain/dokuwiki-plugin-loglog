@@ -3,7 +3,7 @@
 /**
  * Class helper_plugin_loglog_logging
  */
-class helper_plugin_loglog_logging extends \dokuwiki\Extension\Plugin
+class helper_plugin_loglog_logging extends DokuWiki_Plugin
 {
     protected $file = '';
 
