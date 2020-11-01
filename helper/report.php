@@ -3,7 +3,7 @@
 /**
  * Class helper_plugin_loglog_report
  */
-class helper_plugin_loglog_report extends \dokuwiki\Extension\Plugin
+class helper_plugin_loglog_report extends DokuWiki_Plugin
 {
     /**
      * @var \helper_plugin_loglog_main

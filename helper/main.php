@@ -3,7 +3,7 @@
 /**
  * Class helper_plugin_loglog_main
  */
-class helper_plugin_loglog_main extends \dokuwiki\Extension\Plugin
+class helper_plugin_loglog_main extends DokuWiki_Plugin
 {
     const LOGTYPE_AUTH_OK = 'auth_success';
     const LOGTYPE_AUTH_FAIL = 'auth_failed';
