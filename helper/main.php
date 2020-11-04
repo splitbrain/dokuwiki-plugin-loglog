@@ -97,7 +97,7 @@ class helper_plugin_loglog_main extends DokuWiki_Plugin
 
         $msgNeedle = $this->getNotificationString($logType, 'msgNeedle');
         $lines = $this->logHelper->readLines($min, $max);
-        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle, $min, $max);
+        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle);
         if ($cnt >= $threshold) {
             $template = $this->localFN($logType);
             $text = file_get_contents($template);
