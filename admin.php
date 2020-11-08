@@ -58,6 +58,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
 
         $time = $INPUT->str('time') ?: $now;
 
+        // alternative date format?
+        $dateFormat = $this->getConf('admin_date_format') ?: $conf['dformat'];
+
         echo $this->locale_xhtml('intro');
 
         $form = new dokuwiki\Form\Form(['method'=>'GET']);
@@ -77,9 +80,8 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         $form->addButton('submit', $this->getLang('submit'))->attr('type','submit');
         echo $form->toHTML();
 
-
-        echo '<p>' . $this->getLang('range') . ' ' . strftime($conf['dformat'], $min) .
-            ' - ' . strftime($conf['dformat'], $max) . '</p>';
+        echo '<p>' . $this->getLang('range') . ' ' . strftime($dateFormat, $min) .
+            ' - ' . strftime($dateFormat, $max) . '</p>';
 
         echo '<table class="inline loglog">';
         echo '<tr>';
@@ -138,7 +140,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             }
 
             echo '<tr>';
-            echo '<td>' . strftime($conf['dformat'], $dt) . '</td>';
+            echo '<td>' . strftime($dateFormat, $dt) . '</td>';
             echo '<td>' . hsc($ip) . '</td>';
             echo '<td>' . hsc($user) . '</td>';
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
