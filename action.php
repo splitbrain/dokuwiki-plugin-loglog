@@ -192,7 +192,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Log actions in user manager
+     * Log user modifications
      *
      * @param Doku_Event $event
      */
@@ -202,7 +202,13 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         $modUser = $event->data['params'][0];
         if (is_array($modUser)) $modUser = implode(', ', $modUser);
 
-        $this->logAdmin([$modType . ' user', $modUser]);
+        // check if admin or user are modifying the data
+        global $ACT;
+        if ($ACT === 'profile') {
+            $this->logHelper->writeLine('user profile',null, [$modType . ' user', $modUser]);
+        } else {
+            $this->logAdmin([$modType . ' user', $modUser]);
+        }
     }
 
     /**
