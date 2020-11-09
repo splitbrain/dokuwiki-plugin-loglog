@@ -4,7 +4,6 @@ Der konfigurierte Schwellwert für Anmeldungen (@THRESHOLD@ in @INTERVAL@ Minute
 
 Das ist die @SEQUENCE@. Warnung von @NOW@.
 
-Soll sich das Problem kontinuierlich fortsetzen, erhalten Sie die nächste Warnung in
-@NEXT_INTERVAL@ Minuten um @NEXT_ALERT@.
+Soll sich das Problem kontinuierlich fortsetzen, erhalten Sie die nächste Warnung am @NEXT_ALERT@.
 
 Sie können das Problem untersuchen, indem Sie sich ins Wiki einloggen und die Logs im Adminbereich überprüfen.

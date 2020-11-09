@@ -25,10 +25,10 @@ class helper_plugin_loglog_alert extends DokuWiki_Plugin
     protected $now;
 
     /** @var int */
-    protected $lastAlert;
-
-    /** @var int */
     protected $multiplier;
+
+    /** @var string */
+    protected $statfile;
 
     public function __construct()
     {
@@ -74,7 +74,7 @@ class helper_plugin_loglog_alert extends DokuWiki_Plugin
         if (! $email || ! $threshold || ! $minuteInterval) {
             return;
         }
-        $this->multiplier = 1;
+        $this->resetMultiplier();
         $this->threshold = $threshold;
         $this->interval = $minuteInterval * 60;
         $this->now = time();
@@ -88,30 +88,11 @@ class helper_plugin_loglog_alert extends DokuWiki_Plugin
             return;
         }
 
-        // first alert, or part of a series?
-        $wait = false;
-
         global $conf;
-        $statfile = $conf['cachedir'] . '/loglog.'. $logType.'.stat';
+        $this->statfile = $conf['cachedir'] . '/loglog.' . $logType . '.stat';
 
-        if (is_file($statfile)) {
-            $lastAlert = filemtime($statfile);
-            $this->multiplier = (int) file_get_contents($statfile);
-
-            $intervalsAfterLastAlert = (int) floor(($this->now - $lastAlert) / $this->interval);
-
-            // time to act or wait this interval out?
-            if ($intervalsAfterLastAlert === $this->multiplier) {
-                $this->multiplier *= 2;
-            } elseif ($intervalsAfterLastAlert < $this->multiplier) {
-                $wait = true;
-            } elseif ($intervalsAfterLastAlert > $this->multiplier) {
-                $this->multiplier = 1; // no longer part of series, reset multiplier
-            }
-        }
-
-        if (!$wait) {
-            io_saveFile($statfile, $this->multiplier);
+        if ($this->actNow()) {
+            io_saveFile($this->statfile, $this->multiplier);
             $this->sendAlert($logType, $email);
         }
     }
@@ -135,14 +116,42 @@ class helper_plugin_loglog_alert extends DokuWiki_Plugin
                 'interval' => $this->interval / 60, // falling back to minutes for the view
                 'now' => date('Y-m-d H:i', $this->now),
                 'sequence' => $this->getSequencePhase(),
-                'next_interval' => $this->interval / 60 * $this->multiplier * 2, // falling back to minutes for the view
                 'next_alert' => date('Y-m-d H:i', $this->getNextAlert()),
             ]
         );
     }
 
     /**
-     * Calculate in which phase of sequential events we are in (possible attacks),
+     * Check if it is time to act or wait this interval out
+     *
+     * @return bool
+     */
+    protected function actNow()
+    {
+        $act = true;
+
+        if (!is_file($this->statfile)) {
+            return $act;
+        }
+
+        $lastAlert = filemtime($this->statfile);
+        $this->multiplier = (int)file_get_contents($this->statfile);
+
+        $intervalsAfterLastAlert = (int)floor(($this->now - $lastAlert) / $this->interval);
+
+        if ($intervalsAfterLastAlert === $this->multiplier) {
+            $this->increaseMultiplier();
+        } elseif ($intervalsAfterLastAlert < $this->multiplier) {
+            $act = false;
+        } elseif ($intervalsAfterLastAlert > $this->multiplier) {
+            $this->resetMultiplier(); // no longer part of series, reset multiplier
+        }
+
+        return $act;
+    }
+
+    /**
+     * Calculate which phase of sequential events we are in (possible attacks),
      * based on the interval multiplier. 1 indicates the first incident,
      * otherwise evaluate the exponent (because we multiply the interval by 2 on each alert).
      *
@@ -161,5 +170,21 @@ class helper_plugin_loglog_alert extends DokuWiki_Plugin
     protected function getNextAlert()
     {
         return $this->now + $this->interval * $this->multiplier * 2;
+    }
+
+    /**
+     * Reset multiplier. Called when the triggering event is not part of a sequence.
+     */
+    protected function resetMultiplier()
+    {
+        $this->multiplier = 1;
+    }
+
+    /**
+     * Increase multiplier. Called when the triggering event belongs to a sequence.
+     */
+    protected function increaseMultiplier()
+    {
+        $this->multiplier *= 2;
     }
 }

@@ -4,7 +4,6 @@ The number of recent failed login attempts has exceeded the configured limit (@T
 
 This is the @SEQUENCE@. warning issued at @NOW@.
 
-In case this turns out to be part of an ongoing sequence, you will receive the next alert in
-@NEXT_INTERVAL@ minutes at @NEXT_ALERT@.
+In case this turns out to be part of an ongoing sequence, you will receive the next alert on @NEXT_ALERT@.
 
 You can investigate the issue by logging into the wiki and checking the logs in the admin area.
