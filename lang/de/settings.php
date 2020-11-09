@@ -7,3 +7,4 @@ $lang['login_failed_max'] = 'Wenn die Anzahl von gescheiterten Anmeldeveruchen i
 $lang['login_failed_interval'] = 'Alle X Minuten prüfen, ob der konfigurierte Schwellenwert für fehlgeschlagene Anmeldeversuche überschritten wurde';
 $lang['login_failed_email'] = 'E-Mail für Benachrichtigungen über zu viele fehlgeschlagene Anmeldeversuche';
 $lang['report_email'] = 'E-Mail für monatliche Berichte (Monatsanfang)';
+$lang['admin_date_format'] = 'Datumsformat in der Admin-Übersicht, falls abweichend von der Vorgabe in der Hauptkonfiguration (Siehe PHP <a href="http://php.net/strftime">strftime</a> Funktion)';
