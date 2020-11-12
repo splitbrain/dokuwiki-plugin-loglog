@@ -96,43 +96,38 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         $lines = array_reverse($lines);
 
         foreach ($lines as $line) {
-            if (empty($line)) continue; // Filter empty lines
+            if (!$line['user']) continue;
 
-            list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
-            if ($dt < $min) continue;
-            if ($dt > $max) continue;
-            if (!$user) continue;
-
-            $logType = $this->mainHelper->getLogTypeFromMsg($msg);
+            $logType = $this->mainHelper->getLogTypeFromMsg($line['msg']);
 
             if ($this->filter && $this->filter !== '' && $this->filter!== $logType) {
                 continue;
             }
 
-            if ($msg == 'logged off') {
-                $msg = $this->getLang('off');
+            if ($line['msg'] == 'logged off') {
+                $line['msg'] = $this->getLang('off');
                 $class = 'off';
-            } elseif ($msg == 'logged in permanently') {
-                $msg = $this->getLang('in');
+            } elseif ($line['msg'] == 'logged in permanently') {
+                $line['msg'] = $this->getLang('in');
                 $class = 'perm';
-            } elseif ($msg == 'logged in temporarily') {
-                $msg = $this->getLang('tin');
+            } elseif ($line['msg'] == 'logged in temporarily') {
+                $line['msg'] = $this->getLang('tin');
                 $class = 'temp';
-            } elseif ($msg == 'failed login attempt') {
-                $msg = $this->getLang('fail');
+            } elseif ($line['msg'] == 'failed login attempt') {
+                $line['msg'] = $this->getLang('fail');
                 $class = 'fail';
-            } elseif ($msg == 'has been automatically logged off') {
-                $msg = $this->getLang('autologoff');
+            } elseif ($line['msg'] == 'has been automatically logged off') {
+                $line['msg'] = $this->getLang('autologoff');
                 $class = 'off';
             } else {
-                $msg = hsc($msg);
-                if (strpos($msg, 'logged off') !== false) {
+                $line['msg'] = hsc($line['msg']);
+                if (strpos($line['msg'], 'logged off') !== false) {
                     $class = 'off';
-                } elseif (strpos($msg, 'logged in permanently') !== false) {
+                } elseif (strpos($line['msg'], 'logged in permanently') !== false) {
                     $class = 'perm';
-                } elseif (strpos($msg, 'logged in') !== false) {
+                } elseif (strpos($line['msg'], 'logged in') !== false) {
                     $class = 'temp';
-                } elseif (strpos($msg, 'failed') !== false) {
+                } elseif (strpos($line['msg'], 'failed') !== false) {
                     $class = 'fail';
                 } else {
                     $class = 'unknown';
@@ -145,9 +140,9 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo '<td>' . hsc($user) . '</td>';
             echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
             echo '<td>';
-            if ($data) {
+            if ($line['data']) {
                 // logs contain single-line JSON data, so we have to decode and encode it again for pretty print
-                echo '<pre>' . json_encode(json_decode($data), JSON_PRETTY_PRINT) . '</pre>';
+                echo '<pre>' . json_encode(json_decode($line['data']), JSON_PRETTY_PRINT) . '</pre>';
             }
             echo '</td>';
             echo '</tr>';
@@ -161,7 +156,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             echo html_btn('newer',
                 $ID,
                 "p",
-                ['do' => 'admin', 'page' => 'loglog', 'time' => $next, 'filter' => $filter]
+                ['do' => 'admin', 'page' => 'loglog', 'time' => $next, 'filter' => $this->filter]
             );
             echo '</div>';
         }
@@ -170,7 +165,7 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
         echo html_btn('older',
             $ID,
             "n",
-            ['do' => 'admin', 'page' => 'loglog', 'time' => $min, 'filter' => $filter]
+            ['do' => 'admin', 'page' => 'loglog', 'time' => $min, 'filter' => $this->filter]
         );
         echo '</div>';
         echo '</div>';

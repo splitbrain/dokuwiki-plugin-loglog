@@ -53,63 +53,6 @@ class helper_plugin_loglog_main extends DokuWiki_Plugin
     }
 
     /**
-     * Check if any configured thresholds have been exceeded and trigger
-     * alert notifications accordingly.
-     *
-     * @return void
-     */
-    public function checkAlertThresholds()
-    {
-        $this->handleThreshold(
-            self::LOGTYPE_AUTH_FAIL,
-            $this->getConf('login_failed_max'),
-            $this->getConf('login_failed_interval'),
-            $this->getConf('login_failed_email')
-        );
-
-        $this->handleThreshold(
-            self::LOGTYPE_AUTH_OK,
-            $this->getConf('login_success_max'),
-            $this->getConf('login_success_interval'),
-            $this->getConf('login_success_email')
-        );
-    }
-
-    /**
-     * Evaluates threshold configuration for given type of logged event
-     * and triggers email alerts.
-     *
-     * @param string $logType
-     * @param int $threshold
-     * @param int $interval
-     * @param string $email
-     */
-    protected function handleThreshold($logType, $threshold, $interval, $email)
-    {
-        // proceed only if we have sufficient configuration
-        if (! $email || ! $threshold || ! $interval) {
-            return;
-        }
-        $now = time();
-
-        $max = $now;
-        $min = $now - ($interval * 60);
-
-        $msgNeedle = $this->getNotificationString($logType, 'msgNeedle');
-        $lines = $this->logHelper->readLines($min, $max);
-        $cnt = $this->logHelper->countMatchingLines($lines, $msgNeedle, $min, $max);
-        if ($cnt >= $threshold) {
-            $template = $this->localFN($logType);
-            $text = file_get_contents($template);
-            $this->sendEmail(
-                $email,
-                $this->getLang($this->getNotificationString($logType, 'emailSubjectLang')),
-                $text
-            );
-        }
-    }
-
-    /**
      * Sends emails
      *
      * @param string $email
@@ -117,14 +60,14 @@ class helper_plugin_loglog_main extends DokuWiki_Plugin
      * @param string $text
      * @return bool
      */
-    public function sendEmail($email, $subject, $text)
+    public function sendEmail($email, $subject, $text, $textrep = [])
     {
         $html = p_render('xhtml', p_get_instructions($text), $info);
 
         $mail = new Mailer();
         $mail->to($email);
         $mail->subject($subject);
-        $mail->setBody($text, null, null, $html);
+        $mail->setBody($text, $textrep, null, $html);
         return $mail->send();
     }
 

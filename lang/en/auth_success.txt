@@ -1,5 +1,9 @@
 Attention!
 
-The number of recent logins has exceeded the configured limit!
+The number of recent logins has exceeded the configured limit (@THRESHOLD@ in @INTERVAL@ minutes)!
+
+This is the @SEQUENCE@. warning issued at @NOW@.
+
+In case this turns out to be part of an ongoing sequence, you will receive the next alert on @NEXT_ALERT@.
 
 You can investigate the issue by logging into the wiki and checking the logs in the admin area.

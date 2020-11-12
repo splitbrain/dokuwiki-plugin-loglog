@@ -96,23 +96,21 @@ class helper_plugin_loglog_report extends DokuWiki_Plugin
         foreach ($lines as $line) {
             if (
                 strpos(
-                    $line,
+                    $line['msg'],
                     $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::LOGTYPE_AUTH_OK, 'msgNeedle')
                 ) !== false
             ) {
                 $authOk++;
-                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
-                if ($user) $users[] = $user;
+                if ($line['user']) $users[] = $line['user'];
             } elseif (
                 strpos(
-                    $line,
+                    $line['msg'],
                     $this->mainHelper->getNotificationString(\helper_plugin_loglog_main::LOGTYPE_AUTH_FAIL, 'msgNeedle')
                 ) !== false
             ) {
                 $authFail++;
-            } elseif (strpos($line, 'admin') !== false) {
-                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
-                list($action, $page) = explode(' - ', $msg);
+            } elseif (strpos($line['msg'], 'admin') !== false) {
+                list($action, $page) = explode(' - ', $line['msg']);
                 if ($page) {
                     $pages[$page] = !isset($pages[$page]) ? 1 : $pages[$page] + 1;
                 } else {

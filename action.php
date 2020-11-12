@@ -18,10 +18,16 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
      */
     protected $mainHelper;
 
+    /**
+     * @var \helper_plugin_loglog_alert
+     */
+    protected $alertHelper;
+
     public function __construct()
     {
         $this->mainHelper = $this->loadHelper('loglog_main');
         $this->logHelper = $this->loadHelper('loglog_logging');
+        $this->alertHelper = $this->loadHelper('loglog_alert');
     }
 
     /** @inheritDoc */
@@ -93,7 +99,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Log login/logoff actions
+     * Log login/logoff actions and optionally trigger alerts
+     * if configured thresholds have just been exceeded
      *
      * @param $msg
      * @param null|string $user
@@ -103,7 +110,7 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
         $this->logHelper->writeLine($msg, $user);
 
         // trigger alert notifications if necessary
-        $this->mainHelper->checkAlertThresholds();
+        $this->alertHelper->checkAlertThresholds();
     }
 
     /**
@@ -227,6 +234,8 @@ class action_plugin_loglog extends DokuWiki_Action_Plugin
     }
 
     /**
+     * Log activity in select core admin modules
+     *
      * @param \Doku_Event $event
      */
     public function handleOther(\Doku_Event $event)

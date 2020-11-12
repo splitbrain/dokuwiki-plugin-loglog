@@ -10,7 +10,11 @@ class helper_plugin_loglog_logging extends DokuWiki_Plugin
     public function __construct()
     {
         global $conf;
-        $this->file = $conf['cachedir'] . '/loglog.log';
+        if(defined('DOKU_UNITTEST')) {
+            $this->file = DOKU_PLUGIN . 'loglog/_test/loglog.log';
+        } else {
+            $this->file = $conf['cachedir'] . '/loglog.log';
+        }
     }
 
     /**
@@ -38,15 +42,36 @@ class helper_plugin_loglog_logging extends DokuWiki_Plugin
     }
 
     /**
+     * Return logfile lines limited to specified $min - $max range
+     *
+     * @param int $min
+     * @param int $max
+     * @return array
+     */
+    public function readLines($min, $max)
+    {
+        $lines = [];
+        $candidateLines = $this->readChunks($min, $max);
+        foreach ($candidateLines as $line) {
+            if (empty($line)) continue; // Filter empty lines
+            $parsedLine = $this->loglineToArray($line);
+            if ($parsedLine['dt'] >= $min && $parsedLine['dt'] <= $max) {
+                $lines[] = $parsedLine;
+            }
+        }
+        return $lines;
+    }
+
+    /**
      * Read log lines backwards. Start and end timestamps are used to evaluate
      * only the chunks being read, NOT single lines. This method will return
-     * too many lines, the dates have to be checked be the caller again.
+     * too many lines, the dates have to be checked by the caller again.
      *
      * @param int $min start time (in seconds)
      * @param int $max end time (in seconds)
      * @return array
      */
-    public function readLines($min, $max)
+    protected function readChunks($min, $max)
     {
         $data = array();
         $lines = array();
@@ -102,23 +127,36 @@ class helper_plugin_loglog_logging extends DokuWiki_Plugin
     }
 
     /**
-     * Returns the number of lines where the given needle has been found
+     * Convert log line to array
+     *
+     * @param string $line
+     * @return array
+     */
+    protected function loglineToArray($line)
+    {
+        list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
+        return [
+            'dt' => $dt, // timestamp
+            'ip' => $ip,
+            'user' => $user,
+            'msg' => $msg,
+            'data' => $data, // JSON encoded additional data
+        ];
+    }
+
+    /**
+     * Returns the number of lines where the given needle has been found in message
      *
      * @param array $lines
      * @param string $msgNeedle
-     * @param int $min
-     * @param int $max
      * @return mixed
      */
-    public function countMatchingLines(array $lines, string $msgNeedle, int $min, int $max)
+    public function countMatchingLines(array $lines, string $msgNeedle)
     {
         return array_reduce(
             $lines,
-            function ($carry, $line) use ($msgNeedle, $min, $max) {
-                list($dt, $junk, $ip, $user, $msg, $data) = explode("\t", $line, 6);
-                if ($dt >= $min && $dt <= $max) {
-                    $carry = $carry + (int)(strpos($line, $msgNeedle) !== false);
-                }
+            function ($carry, $line) use ($msgNeedle) {
+                $carry = $carry + (int)(strpos($line['msg'], $msgNeedle) !== false);
                 return $carry;
             },
             0

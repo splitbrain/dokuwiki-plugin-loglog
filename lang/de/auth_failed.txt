@@ -1,5 +1,9 @@
 Achtung!
 
-Der konfigurierte Schwellwert für fehlgeschlagene Anmeldeveruche wurde überschritten!
+Der konfigurierte Schwellwert für fehlgeschlagene Anmeldeveruche (@THRESHOLD@ in @INTERVAL@ Minuten) wurde überschritten!
+
+Das ist die @SEQUENCE@. Warnung von @NOW@.
+
+Soll sich das Problem kontinuierlich fortsetzen, erhalten Sie die nächste Warnung am @NEXT_ALERT@.
 
 Sie können das Problem untersuchen, indem Sie sich ins Wiki einloggen und die Logs im Adminbereich überprüfen.

@@ -1,0 +1,12 @@
+1598914860	2020/09/01 01:01	127.0.0.1	admin	failed login attempt
+1599004920	2020/09/02 02:02	127.0.0.1	admin	logged in temporarily
+1599094980	2020/09/03 03:03	127.0.0.1	admin	logged off
+1601506860	2020/10/01 01:01	127.0.0.1	testuser	logged in temporarily
+1601596920	2020/10/02 02:02	127.0.0.1	admin	logged in temporarily
+1601686980	2020/10/03 03:03	127.0.0.1	admin	admin
+1601777040	2020/10/04 04:04	127.0.0.1	admin	admin - usermanager	["delete user","user1"]
+1604188860	2020/11/01 01:01	127.0.0.1	testuser	logged in temporarily
+1604278920	2020/11/02 02:02	127.0.0.1	admin	admin
+1604368980	2020/11/03 03:03	127.0.0.1	admin	admin - usermanager
+1604459040	2020/11/04 04:04	127.0.0.1	fakeuser	failed login attempt
+1604549100	2020/11/05 05:05	127.0.0.1	fakeuser	failed login attempt
