@@ -135,10 +135,10 @@ class admin_plugin_loglog extends DokuWiki_Admin_Plugin
             }
 
             echo '<tr>';
-            echo '<td>' . strftime($dateFormat, $dt) . '</td>';
-            echo '<td>' . hsc($ip) . '</td>';
-            echo '<td>' . hsc($user) . '</td>';
-            echo '<td><span class="loglog_' . $class . '">' . $msg . '</span></td>';
+            echo '<td>' . strftime($dateFormat, $line['dt']) . '</td>';
+            echo '<td>' . hsc($line['ip']) . '</td>';
+            echo '<td>' . hsc($line['user']) . '</td>';
+            echo '<td><span class="loglog_' . $class . '">' . $line['msg'] . '</span></td>';
             echo '<td>';
             if ($line['data']) {
                 // logs contain single-line JSON data, so we have to decode and encode it again for pretty print
