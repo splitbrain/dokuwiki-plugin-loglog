@@ -1,0 +1,9 @@
+Attention !
+
+Le nombre d'échecs de connexion a dépassé la limite configurée (@THRESHOLD@ pour @INTERVAL@ minutes) !
+
+Ceci est l'alerte @SEQUENCE@. Heure de déclenchement : @NOW@.
+
+Si ce message fait partie d'une séquence continue d'alertes, vous recevrez la prochaine notification le @NEXT_ALERT@.
+
+Vous pouvez analyser le problème en vérifiant les journaux dans la section administration du wiki.
