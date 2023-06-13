@@ -1,0 +1,11 @@
+Rapport d'utilisation du dernier mois.
+
+Connexions.
+
+  * Connexions réussies : @@auth_ok@@,
+  * échecs de connexion : @@auth_fail@@,
+  * nombre d'utilisateurs connectés : @@users@@.
+
+Outil d'administration.
+
+@@admin_pages@@
