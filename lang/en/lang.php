@@ -1,25 +1,23 @@
 <?php
 
-$lang['menu'] = 'Weekly user and admin activity';
-
-$lang['date']   = 'Date';
-$lang['ip']     = 'IP Address';
-$lang['action'] = 'Action';
-$lang['range']  = 'Displayed date range:';
-
-$lang['off'] = 'logged off';
-$lang['autologoff'] = 'has been logged out automatically';
-$lang['in']  = 'logged in permanently';
-$lang['tin'] = 'logged in temporarily';
-$lang['fail'] = 'failed login attempt';
-
-$lang['data'] = 'Data';
-$lang['submit'] = 'Apply filter';
-$lang['filter_auth_ok'] = 'User logins and logoffs';
-$lang['filter_auth_error'] = 'Failed login attempts';
-$lang['filter_admin'] = 'Admin';
-$lang['filter_other'] = 'Other';
-
-$lang['email_max_success_logins_subject'] = 'Alert: Too many logins';
-$lang['email_max_failed_logins_subject'] = 'Alert: Too many failed login attempts';
-$lang['email_report_subject'] = 'Monthly log report';
+/**
+ * @license    GPL 2 (https://www.gnu.org/licenses/gpl.html)
+ *
+ * @author Aleksandr Selivanov <alexgearbox@yandex.ru>
+ */
+$lang['menu']                  = 'Журнал действий пользователей и администраторов';
+$lang['date']                  = 'Дата';
+$lang['ip']                    = 'IP-адрес';
+$lang['action']                = 'Действие';
+$lang['range']                 = 'Отображаемый период:';
+$lang['off']                   = 'выход';
+$lang['autologoff']            = 'был автоматически отключён от системы';
+$lang['in']                    = 'постоянный вход в систему';
+$lang['tin']                   = 'временный вход в систему';
+$lang['fail']                  = 'неудачная попытка входа';
+$lang['data']                  = 'Сведения';
+$lang['submit']                = 'Применить фильтр';
+$lang['filter_auth_ok']        = 'Входы и выходы пользователей';
+$lang['filter_auth_error']     = 'Неудачные попытки входа';
+$lang['filter_admin']          = 'Администраторское';
+$lang['filter_other']          = 'Другое';
