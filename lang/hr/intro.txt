@@ -1,3 +1,1 @@
-====== Tjedne prijave/odjave korisnika ======
-
-Ovdje su prikazane sve prijave i odjave korisnika u zadnjih 7 dana. Možete koristiti tipke za navigaciju na dnu stranice da prikažete prethodne tjedne.
+25
