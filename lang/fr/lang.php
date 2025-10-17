@@ -3,7 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
- * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
+ * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author NicolasFriedli <nicolas@theologique.ch>
  */
 $lang['menu']                  = 'Journal hebdomadaire des connexions et déconnexions des utilisateurs';
@@ -20,6 +20,7 @@ $lang['data']                  = 'Données';
 $lang['submit']                = 'Appliquer le filtre';
 $lang['filter_auth_ok']        = 'Connexions et déconnexions des utilisateurs';
 $lang['filter_auth_error']     = 'Échecs de connexion';
+$lang['filter_admin']          = 'Administrer';
 $lang['filter_other']          = 'Autre';
 $lang['email_max_success_logins_subject'] = 'Alerte : Trop de connexions.';
 $lang['email_max_failed_logins_subject'] = 'Alerte : Trop d\'échecs de connexion.';
