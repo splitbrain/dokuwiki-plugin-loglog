@@ -1,0 +1,11 @@
+Report používania za posledný mesiac
+
+Prihlásenia
+
+  * úspešné prihlásenia: @@auth_ok@@
+  * neúspešné pokusy o prihlásenie: @@auth_fail@@
+  * počet prihlásených používateľov: @@users@@
+
+Administrátorské nástroje
+
+@@admin_pages@@
