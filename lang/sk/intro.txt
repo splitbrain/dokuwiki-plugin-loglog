@@ -1,0 +1,3 @@
+====== Týždenná aktivita používateľov a administrátorov ======
+
+Táto obrazovka zobrazuje nasledujúce aktivity za posledných 7 dní: prihlásenia a odhlásenia používateľov, ako aj používanie administrátorských nástrojov. Navigačnými tlačidlami v spodnej časti obrazovky môžete zobraziť predchádzajúce týždne.

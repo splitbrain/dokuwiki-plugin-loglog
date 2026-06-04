@@ -1,0 +1,9 @@
+Pozor!
+
+Počet nedávnych prihlásení prekročil nastavený limit (@THRESHOLD@ za @INTERVAL@ minút)!
+
+Toto je @SEQUENCE@. upozornenie vydané @NOW@.
+
+Ak sa ukáže, že ide o pokračujúcu sériu, ďalšie upozornenie dostanete @NEXT_ALERT@.
+
+Problém môžete preskúmať prihlásením do wiki a kontrolou logov v administrátorskej oblasti.
