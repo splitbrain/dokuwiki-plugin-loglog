@@ -1,3 +1,3 @@
-====== Weekly User and Admin Activity ======
+====== Журнал действий пользователей и администраторов ======
 
-This screen displays the following activities during the last 7 days: user logins and logouts, as well as usage of admin tools. You can use the navigation buttons at the bottom of the screen to display earlier weeks.
+На странице отображаются входы и выходы пользователей, а также использование инструментов администратора за последний семь дней. Используйте кнопки навигации в нижней части страницы для отображения записей за предыдущие недели.
